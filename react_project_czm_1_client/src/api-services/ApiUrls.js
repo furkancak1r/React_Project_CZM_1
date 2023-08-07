@@ -1,7 +1,7 @@
-const localhost = "http://localhost:4000";
+const localhost = "http://localhost:8080";
 
 const urls = [
-  `${localhost}/sqldata/selectrows`,
+  `${localhost}/sqldata/selectRowsWithLatestTitleVersion`,
   `${localhost}/sqldata/insertrow`,
 ];
 

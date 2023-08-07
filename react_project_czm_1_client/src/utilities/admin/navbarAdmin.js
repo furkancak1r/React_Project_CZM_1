@@ -8,7 +8,10 @@ class NavbarAdmin extends Component {
 
   componentDidMount() {
     fetchNavbarData().then((data) => {
-      this.setState({ navbarData: data });
+      // Limiting the data to first 5 items
+      if(data){
+      const limitedData = data.slice(0, 5);
+      this.setState({ navbarData: limitedData });}
     });
   }
 
@@ -19,6 +22,13 @@ class NavbarAdmin extends Component {
     this.setState({ navbarData: newNavbarData });
   };
 
+  handleDoubleClick = (index) => {
+    const { navbarData } = this.state;
+    const newNavbarData = [...navbarData];
+    newNavbarData[index].editable = true;
+    this.setState({ navbarData: newNavbarData });
+  };
+
   handleSave = () => {
     const { navbarData } = this.state;
     const data = {
@@ -26,12 +36,12 @@ class NavbarAdmin extends Component {
       columns: ["title"],
       values: navbarData.map((item) => item.title),
     };
-    console.log(navbarData);
-
-    console.log(data);
-    updateNavbarData(data);
+    updateNavbarData(data).then(() => {
+      // After saving, set editable to false for all items
+      const updatedNavbarData = navbarData.map((item) => ({ ...item, editable: false }));
+      this.setState({ navbarData: updatedNavbarData });
+    });
   };
-  
 
   render() {
     const { navbarData } = this.state;
@@ -42,17 +52,44 @@ class NavbarAdmin extends Component {
 
     return (
       <div>
-        <ul>
-          {navbarData.map((item, index) => (
-            <li key={index}>
+        <nav className="navbar navbar-expand-lg navbar-light bg-light">
+          <a className="navbar-brand" href="#">
+            {navbarData[0].editable ? (
               <input
                 type="text"
-                value={item.title}
-                onChange={(event) => this.handleTitleChange(index, event)}
+                value={navbarData[0].title}
+                onChange={(event) => this.handleTitleChange(0, event)}
               />
-            </li>
-          ))}
-        </ul>
+            ) : (
+              navbarData[0].title
+            )}
+          </a>
+          <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className="collapse navbar-collapse" id="navbarNav">
+            <ul className="navbar-nav">
+              {navbarData.slice(1).map((item, index) => (
+                <li key={index} className={`nav-item ${index === 0 ? 'active' : ''}`}>
+                  {item.editable ? (
+                    <input
+                      type="text"
+                      value={item.title}
+                      onChange={(event) => this.handleTitleChange(index + 1, event)}
+                    />
+                  ) : (
+                    <span
+                      className="nav-link" // Added a class for styling
+                      onDoubleClick={() => this.handleDoubleClick(index + 1)}
+                    >
+                      {item.title}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </nav>
         <button onClick={this.handleSave}>Save</button>
       </div>
     );

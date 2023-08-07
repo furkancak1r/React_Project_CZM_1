@@ -1,13 +1,20 @@
 const express = require("express");
 const mysqlFunctions = require("./mysqlFunctions");
 const cors = require("cors"); // Import the cors package
-const bodyParser = require("body-parser");
 const app = express();
-const port = 4000;
+const port = 8080;
 
 app.use(express.json()); // Middleware to parse JSON data
-app.use(cors()); // Enable CORS for all routes
-app.use(bodyParser.json());
+app.use(cors({
+  origin: "*",
+}));
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
+
 app.post("/sqldata/createtable", (req, res) => {
   // İstekten gelen verileri alıyoruz
   const { table_names } = req.body;
@@ -48,8 +55,27 @@ app.post("/sqldata/insertrow", (req, res) => {
       );
 
       // Yanıt olarak 200 OK dönüyoruz
-      res.sendStatus(200);
+      res.json({ status: "success" });
     });
+});
+
+app.post("/sqldata/selectRowsWithLatestTitleVersion", async (req, res) => {
+  // Add async keyword to the route handler
+  // İstekten gelen verileri alıyoruz
+  const { table_names, columns } = req.body;
+
+  try {
+    // Select the rows using the received values
+   // const rows = await mysqlFunctions.selectRows(table_names, columns);
+     const rows = await mysqlFunctions.selectRowsWithLatestTitleVersion(table_names, columns);
+
+    // Yanıt olarak JSON formatında yanıt döndürüyoruz
+    res.json(rows);
+  } catch (error) {
+    console.error("Satırlar alınırken bir hata oluştu:", error);
+    // Hata durumunda uygun bir hata kodu ve mesajı dönülebilir
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 app.post("/sqldata/selectrows", async (req, res) => {

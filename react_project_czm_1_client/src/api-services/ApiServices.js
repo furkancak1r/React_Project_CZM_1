@@ -22,7 +22,6 @@ export const fetchNavbarData = () => {
 };
 
 export const updateNavbarData = (data) => {
-  // Make the POST request to update the Navbar data on the server
   return fetch(urls[1], {
     method: "POST",
     headers: {
@@ -30,7 +29,14 @@ export const updateNavbarData = (data) => {
     },
     body: JSON.stringify(data),
   })
-    .then((response) => response.json())
+    .then((response) => {
+      console.log("Response from the server:", response);
+      return response.text(); // Change to response.text() for debugging
+    })
+    .then((textResponse) => {
+      console.log("Text response from the server:", textResponse); // Log the text response
+      return JSON.parse(textResponse); // Try parsing the text response as JSON
+    })
     .catch((error) => {
       console.error("Error updating Navbar data:", error);
     });

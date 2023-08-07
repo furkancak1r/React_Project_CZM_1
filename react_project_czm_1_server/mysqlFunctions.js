@@ -98,7 +98,23 @@ function selectRows(table_names, columns) {
   });
 }
 
+function selectRowsWithLatestTitleVersion(table_names, columns) {
+  return new Promise((resolve, reject) => {
+    const selectRowsQuery = `
+      SELECT ${columns}
+      FROM ${table_names}
+      WHERE title_version = (SELECT MAX(title_version) FROM ${table_names})
+    `;
 
+    connection.query(selectRowsQuery, function (err, results) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
 
 module.exports = {
   createTable,
@@ -106,4 +122,5 @@ module.exports = {
   insertRow,
   selectRows,
   selectMaxTitleVersion,
+  selectRowsWithLatestTitleVersion
 };
