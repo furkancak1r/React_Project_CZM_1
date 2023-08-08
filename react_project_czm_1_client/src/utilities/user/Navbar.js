@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { fetchNavbarData } from '../../api-services/ApiServices';
+import { fetchNavbarData } from '../../api-services/apiServices';
 
 class Navbar extends Component {
   state = {

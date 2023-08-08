@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { fetchNavbarData, updateNavbarData } from "../../api-services/ApiServices";
+import { fetchNavbarData, updateNavbarData } from "../../api-services/apiServices";
 
 class NavbarAdmin extends Component {
   state = {

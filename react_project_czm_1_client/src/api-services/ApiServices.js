@@ -1,4 +1,4 @@
-import urls from "./ApiUrls";
+import urls from "./apiUrls";
 
 // navbarService.js
 
@@ -39,5 +39,27 @@ export const updateNavbarData = (data) => {
     })
     .catch((error) => {
       console.error("Error updating Navbar data:", error);
+    });
+};
+
+
+export const sendAdminInfo = (username, password) => {
+  return fetch(urls[2], {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ username, password }), // Verileri JSON olarak göndermek
+  })
+    .then((response) => {
+      console.log("Response from the server:", response);
+      return response.text(); // Hata ayıklama için response.text() olarak dönebilirsiniz
+    })
+    .then((textResponse) => {
+      console.log("Text response from the server:", textResponse); // Text cevabını logla
+      return JSON.parse(textResponse); // Text cevabını JSON olarak çözümle
+    })
+    .catch((error) => {
+      console.error("Error sending admin info:", error);
     });
 };

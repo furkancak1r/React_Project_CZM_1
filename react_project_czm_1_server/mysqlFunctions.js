@@ -1,10 +1,8 @@
 const mysql = require("mysql");
 const config = require("./config");
 
-// Veritabanına bağlan
 const connection = mysql.createConnection(config);
 
-// Veritabanına bağlanın
 connection.connect(function (err) {
   if (err) {
     console.error("Veritabanına bağlanırken hata oluştu:", err);
@@ -40,16 +38,15 @@ function dropTable(table_names) {
 }
 
 function insertRow(table_name, columns, values, title_version) {
-  let newTitleVersion = title_version || 0; // If title_version is null, set it to 0
-  newTitleVersion += 1; // Increment newTitleVersion by 1
+  let newTitleVersion = title_version || 0;
+  newTitleVersion += 1;
 
   let insertRowQuery = `INSERT INTO ${table_name} (${columns}, title_version) VALUES `;
 
-  // Concatenate the values as separate rows
   for (let i = 0; i < values.length; i++) {
     insertRowQuery += `('${values[i]}', ${newTitleVersion})`;
     if (i < values.length - 1) {
-      insertRowQuery += ', ';
+      insertRowQuery += ", ";
     }
   }
 
@@ -68,17 +65,15 @@ function insertRow(table_name, columns, values, title_version) {
   });
 }
 
-
-
 function selectMaxTitleVersion(table_names) {
   return new Promise((resolve, reject) => {
     const selectMaxTitleVersionQuery = `SELECT MAX(title_version) as max_title_version FROM \`${table_names}\`;`;
 
     connection.query(selectMaxTitleVersionQuery, function (err, results) {
       if (err) {
-        reject(err); // Reject the promise on error
+        reject(err);
       } else {
-        resolve(results[0].max_title_version); // Resolve the promise with the max title_version
+        resolve(results[0].max_title_version);
       }
     });
   });
@@ -90,9 +85,9 @@ function selectRows(table_names, columns) {
 
     connection.query(selectRowsQuery, function (err, results) {
       if (err) {
-        reject(err); // Reject the promise on error
+        reject(err);
       } else {
-        resolve(results); // Resolve the promise with the query results
+        resolve(results);
       }
     });
   });
@@ -115,6 +110,23 @@ function selectRowsWithLatestTitleVersion(table_names, columns) {
     });
   });
 }
+function findByUsername(username) {
+  return new Promise((resolve, reject) => {
+    const findByUsernameQuery = `SELECT * FROM users WHERE username = '${username}';`;
+
+    connection.query(findByUsernameQuery, function (err, results) {
+      if (err) {
+        reject(err); // Reject the promise on error
+      } else {
+        if (results.length > 0) {
+          resolve(results[0]); // Resolve the promise with the user data
+        } else {
+          resolve(null); // Resolve with null if no user is found
+        }
+      }
+    });
+  });
+}
 
 module.exports = {
   createTable,
@@ -122,5 +134,6 @@ module.exports = {
   insertRow,
   selectRows,
   selectMaxTitleVersion,
-  selectRowsWithLatestTitleVersion
+  selectRowsWithLatestTitleVersion,
+  findByUsername,
 };
