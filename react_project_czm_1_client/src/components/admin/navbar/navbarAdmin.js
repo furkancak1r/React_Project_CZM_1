@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { fetchNavbarData, updateNavbarData } from "../../api-services/apiServices";
+import { fetchNavbarData, updateNavbarData } from "../../../services/api-services/apiServices";
 
 class NavbarAdmin extends Component {
   state = {
@@ -53,7 +53,7 @@ class NavbarAdmin extends Component {
     return (
       <div>
         <nav className="navbar navbar-expand-lg navbar-light bg-light">
-          <a className="navbar-brand" href="#">
+          <a className="navbar-brand" >
             {navbarData[0].editable ? (
               <input
                 type="text"

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { fetchNavbarData } from '../../api-services/apiServices';
+import { fetchNavbarData } from '../../../services/api-services/apiServices';
 
 class Navbar extends Component {
   state = {
@@ -23,7 +23,7 @@ class Navbar extends Component {
 
     return (
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <a className="navbar-brand" href="#">
+        <a className="navbar-brand" >
           {navbarData[0].title}
         </a>
         <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,7 +33,7 @@ class Navbar extends Component {
           <ul className="navbar-nav">
             {navbarData.slice(1).map((item, index) => (
               <li key={index} className={`nav-item ${index === 0 ? 'active' : ''}`}>
-                <a className="nav-link" href="#">
+                <a className="nav-link">
                   {item.title}
                 </a>
               </li>
