@@ -10,8 +10,8 @@ class NavbarAdmin extends Component {
     navbarData: null,
   };
 
-  editableRef = null; // Null olarak tanımla
-  inputRef = null;    // Null olarak tanımla
+  editableRef = null;
+  inputRef = null;
 
   componentDidMount() {
     fetchNavbarData().then((data) => {
@@ -21,26 +21,37 @@ class NavbarAdmin extends Component {
       }
     });
 
-    document.addEventListener("mousedown", this.handleClickOutside);
+    document.addEventListener("mousedown", this.handleClick);
+    document.addEventListener("keydown", this.handleKeyDown);
   }
 
   componentWillUnmount() {
-    document.removeEventListener("mousedown", this.handleClickOutside);
+    document.removeEventListener("mousedown", this.handleClick);
+    document.removeEventListener("keydown", this.handleKeyDown);
   }
 
-  handleClickOutside = (event) => {
+  handleClick = (event) => {
     if (
-      this.editableRef && this.editableRef.contains(event.target) &&
+      this.editableRef && !this.editableRef.contains(event.target) &&
       this.inputRef && !this.inputRef.contains(event.target)
     ) {
-      this.handleSave();
-      const { navbarData } = this.state;
-      const updatedNavbarData = navbarData.map((item) => ({
-        ...item,
-        editable: false,
-      }));
-      this.setState({ navbarData: updatedNavbarData });
+      this.closeEditable();
     }
+  };
+
+  handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      this.closeEditable();
+    }
+  };
+
+  closeEditable = () => {
+    const { navbarData } = this.state;
+    const updatedNavbarData = navbarData.map((item) => ({
+      ...item,
+      editable: false,
+    }));
+    this.setState({ navbarData: updatedNavbarData });
   };
 
   handleTitleChange = (index, event) => {
@@ -65,11 +76,7 @@ class NavbarAdmin extends Component {
       values: navbarData.map((item) => item.title),
     };
     updateNavbarData(data).then(() => {
-      const updatedNavbarData = navbarData.map((item) => ({
-        ...item,
-        editable: false,
-      }));
-      this.setState({ navbarData: updatedNavbarData });
+      // No need to reset editable state here, as it's controlled by user actions
     });
   };
 
@@ -112,7 +119,6 @@ class NavbarAdmin extends Component {
                     value={item.title}
                     onClick={this.handleInputClick}
                     onChange={(event) => this.handleTitleChange(index, event)}
-                    onBlur={this.handleSave}
                     ref={(ref) => (this.inputRef = ref)}
                   />
                 ) : (
