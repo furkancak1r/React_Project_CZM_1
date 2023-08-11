@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { fetchNavbarData, updateNavbarData } from "../../../services/api-services/apiServices";
+import { Link } from "react-router-dom";
 
 class NavbarAdmin extends Component {
   state = {
@@ -53,7 +54,7 @@ class NavbarAdmin extends Component {
     return (
       <div>
         <nav className="navbar navbar-expand-lg navbar-light bg-light">
-          <a className="navbar-brand" >
+          <Link className="navbar-brand" to="/">
             {navbarData[0].editable ? (
               <input
                 type="text"
@@ -63,7 +64,7 @@ class NavbarAdmin extends Component {
             ) : (
               navbarData[0].title
             )}
-          </a>
+          </Link>
           <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span className="navbar-toggler-icon"></span>
           </button>

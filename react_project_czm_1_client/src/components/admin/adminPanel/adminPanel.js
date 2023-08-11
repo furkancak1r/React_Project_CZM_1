@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 function AdminPanel() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
   const navigate = useNavigate();
 
   const handleAdminUsernameChange = (event) => {
@@ -16,7 +17,7 @@ function AdminPanel() {
   const handleAdminPasswordChange = (event) => {
     setPassword(event.target.value);
   };
-
+    
   const handleAdminSubmit = async (event) => {
     event.preventDefault();
 
@@ -28,6 +29,8 @@ function AdminPanel() {
       if (response.message === "Login successful") {
         console.log("Login successful");
         navigate("/admin/homepage");
+        localStorage.setItem("isLoggedIn", true);
+
       } else {
         alert("Incorrect username or password");
       }

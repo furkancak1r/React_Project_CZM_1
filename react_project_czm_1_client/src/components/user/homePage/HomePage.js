@@ -1,15 +1,30 @@
-import React, { Component } from "react";
-import { Link } from "react-router-dom"; // Eğer projenizde react-router kullanıyorsanız
+import React from "react";
 import Navbar from "../navbar/Navbar";
-class HomePage extends Component {
-  render() {
-    return (
-      <div>
-        <Navbar />
-        <Link to="/admin">Go to Admin Page</Link>
-      </div>
-    );
-  }
+import { useNavigate } from "react-router-dom";
+
+function HomePage() {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+    if (isLoggedIn === "false") {
+      // /admin'e yönlendir
+      navigate("/admin");
+    } else {
+      // /admin/homepage'e yönlendir
+      navigate("/admin/homepage");
+    }
+  };
+
+  return (
+    <div>
+      <Navbar />
+      <h5 onClick={handleClick}>
+        Go to Admin Page
+      </h5>
+    </div>
+  );
 }
 
 export default HomePage;
