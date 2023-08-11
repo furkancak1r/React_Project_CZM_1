@@ -95,7 +95,7 @@ class NavbarAdmin extends Component {
     };
 
     updateNavbarData(data).then(() => {
-      // Yeniden yükleme işlemi
+      // Page reload
       window.location.reload();
     });
   };
@@ -177,11 +177,32 @@ class NavbarAdmin extends Component {
                 )}
               </div>
             ))}
+            {navbarData.length === 0 && (
+              <span
+                className="add-icon"
+                onClick={this.handleAddInput}
+                style={{
+                  cursor: "pointer",
+                  marginLeft: "5px",
+                  display: "inline-block",
+                  width: "24px",
+                  height: "24px",
+                  borderRadius: "50%",
+                  background: "#f0f0f0",
+                  textAlign: "center",
+                  lineHeight: "24px",
+                  fontWeight: "bold",
+                  fontSize: "18px",
+                }}
+              >
+                +
+              </span>
+            )}
           </div>
         </div>
         <div style={{ marginLeft: "auto", paddingRight: "30px" }}>
           <button onClick={this.handleSave} className="btn btn-primary">
-            Kaydet
+            Save
           </button>
         </div>
       </nav>
