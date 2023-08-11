@@ -12,7 +12,6 @@ class App extends Component {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/homepage" element={<HomePage />} />
-
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/admin/homepage" element={<HomePageAdmin />} />
         </Routes>

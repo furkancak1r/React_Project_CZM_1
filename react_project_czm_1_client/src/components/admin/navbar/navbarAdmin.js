@@ -1,5 +1,8 @@
 import React, { Component } from "react";
-import { fetchNavbarData, updateNavbarData } from "../../../services/api-services/apiServices";
+import {
+  fetchNavbarData,
+  updateNavbarData,
+} from "../../../services/api-services/apiServices";
 import { Link } from "react-router-dom";
 
 class NavbarAdmin extends Component {
@@ -7,14 +10,38 @@ class NavbarAdmin extends Component {
     navbarData: null,
   };
 
+  editableRef = null; // Null olarak tanımla
+  inputRef = null;    // Null olarak tanımla
+
   componentDidMount() {
     fetchNavbarData().then((data) => {
-      // Limiting the data to first 5 items
-      if(data){
-      const limitedData = data.slice(0, 5);
-      this.setState({ navbarData: limitedData });}
+      if (data) {
+        const limitedData = data.slice(0, 5).map((item) => ({ ...item, editable: false }));
+        this.setState({ navbarData: limitedData });
+      }
     });
+
+    document.addEventListener("mousedown", this.handleClickOutside);
   }
+
+  componentWillUnmount() {
+    document.removeEventListener("mousedown", this.handleClickOutside);
+  }
+
+  handleClickOutside = (event) => {
+    if (
+      this.editableRef && this.editableRef.contains(event.target) &&
+      this.inputRef && !this.inputRef.contains(event.target)
+    ) {
+      this.handleSave();
+      const { navbarData } = this.state;
+      const updatedNavbarData = navbarData.map((item) => ({
+        ...item,
+        editable: false,
+      }));
+      this.setState({ navbarData: updatedNavbarData });
+    }
+  };
 
   handleTitleChange = (index, event) => {
     const { navbarData } = this.state;
@@ -38,10 +65,16 @@ class NavbarAdmin extends Component {
       values: navbarData.map((item) => item.title),
     };
     updateNavbarData(data).then(() => {
-      // After saving, set editable to false for all items
-      const updatedNavbarData = navbarData.map((item) => ({ ...item, editable: false }));
+      const updatedNavbarData = navbarData.map((item) => ({
+        ...item,
+        editable: false,
+      }));
       this.setState({ navbarData: updatedNavbarData });
     });
+  };
+
+  handleInputClick = (event) => {
+    event.stopPropagation();
   };
 
   render() {
@@ -52,47 +85,58 @@ class NavbarAdmin extends Component {
     }
 
     return (
-      <div>
-        <nav className="navbar navbar-expand-lg navbar-light bg-light">
-          <Link className="navbar-brand" to="/">
-            {navbarData[0].editable ? (
-              <input
-                type="text"
-                value={navbarData[0].title}
-                onChange={(event) => this.handleTitleChange(0, event)}
-              />
-            ) : (
-              navbarData[0].title
-            )}
-          </Link>
-          <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav">
-              {navbarData.slice(1).map((item, index) => (
-                <li key={index} className={`nav-item ${index === 0 ? 'active' : ''}`}>
-                  {item.editable ? (
-                    <input
-                      type="text"
-                      value={item.title}
-                      onChange={(event) => this.handleTitleChange(index + 1, event)}
-                    />
-                  ) : (
-                    <span
-                      className="nav-link" // Added a class for styling
-                      onDoubleClick={() => this.handleDoubleClick(index + 1)}
-                    >
-                      {item.title}
-                    </span>
-                  )}
-                </li>
-              ))}
-            </ul>
+      <nav className="navbar navbar-expand-lg navbar-light bg-light">
+        <Link className="navbar-brand" to="/" style={{ paddingLeft: "10%" }}>
+          <img src="/czmLogo.png" alt="Logo" />
+        </Link>
+        <div className="container" style={{ float: "left" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: " center",
+              justifyItems: "start",
+              alignItems: "center",
+              textAlign: "left",
+              paddingLeft: "20%",
+            }}
+          >
+            {navbarData.map((item, index) => (
+              <div
+                key={index}
+                ref={(ref) => (this.editableRef = ref)}
+                style={{ position: "relative" }}
+              >
+                {item.editable ? (
+                  <input
+                    type="text"
+                    value={item.title}
+                    onClick={this.handleInputClick}
+                    onChange={(event) => this.handleTitleChange(index, event)}
+                    onBlur={this.handleSave}
+                    ref={(ref) => (this.inputRef = ref)}
+                  />
+                ) : (
+                  <span
+                    onDoubleClick={() => this.handleDoubleClick(index)}
+                    style={{
+                      margin: "0 20px",
+                      fontWeight: "600",
+                      fontSize: "18px",
+                    }}
+                  >
+                    {item.title}
+                  </span>
+                )}
+              </div>
+            ))}
           </div>
-        </nav>
-        <button onClick={this.handleSave}>Save</button>
-      </div>
+        </div>
+        <div style={{ marginLeft: "auto", paddingRight: "30px" }}>
+          <button onClick={this.handleSave} className="btn btn-primary">
+            Kaydet
+          </button>
+        </div>
+      </nav>
     );
   }
 }

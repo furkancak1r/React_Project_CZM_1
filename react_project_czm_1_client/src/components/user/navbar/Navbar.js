@@ -24,32 +24,35 @@ class Navbar extends Component {
 
     return (
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <Link className="navbar-brand" to="/">
-          {navbarData[0].title}
+        {" "}
+        <Link className="navbar-brand" to="/" style={{ paddingLeft: "10%" }}>
+          <img src="czmLogo.png" alt="Logo" />
         </Link>
-
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-toggle="collapse"
-          data-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav">
-            {navbarData.slice(1).map((item, index) => (
-              <li
-                key={index}
-                className={`nav-item ${index === 0 ? "active" : ""}`}
+        <div className="container" style={{ float: "left" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: " center",
+              justifyItems: "start",
+              alignItems: "center",
+              textAlign: "left",
+              paddingLeft: "20%",
+            }}
+          >
+            {navbarData.map((item) => (
+              <Link
+                className="nav-link"
+                to="/"
+                style={{
+                  margin: "0 20px",
+                  fontWeight: "600",
+                  fontSize: "18px",
+                }}
               >
-                <Link className="nav-link" to="/">{item.title}</Link>
-              </li>
+                {item.title}
+              </Link>
             ))}
-          </ul>
+          </div>
         </div>
       </nav>
     );
