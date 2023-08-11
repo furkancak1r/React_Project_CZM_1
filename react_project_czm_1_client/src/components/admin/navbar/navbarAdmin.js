@@ -1,25 +1,17 @@
 import React, { Component } from "react";
-import {
-  fetchNavbarData,
-  updateNavbarData,
-} from "../../../services/api-services/apiServices";
+import { fetchNavbarData, updateNavbarData } from "../../../services/api-services/apiServices";
 import { Link } from "react-router-dom";
 
 class NavbarAdmin extends Component {
   state = {
-    navbarData: null,
+    navbarData: [],
   };
 
   editableRef = null;
   inputRef = null;
 
   componentDidMount() {
-    fetchNavbarData().then((data) => {
-      if (data) {
-        const limitedData = data.slice(0, 5).map((item) => ({ ...item, editable: false }));
-        this.setState({ navbarData: limitedData });
-      }
-    });
+    this.fetchAndSetNavbarData();
 
     document.addEventListener("mousedown", this.handleClick);
     document.addEventListener("keydown", this.handleKeyDown);
@@ -30,10 +22,20 @@ class NavbarAdmin extends Component {
     document.removeEventListener("keydown", this.handleKeyDown);
   }
 
+  fetchAndSetNavbarData = () => {
+    fetchNavbarData().then((data) => {
+      if (data && data.length > 0) {
+        this.setState({ navbarData: data });
+      }
+    });
+  };
+
   handleClick = (event) => {
     if (
-      this.editableRef && !this.editableRef.contains(event.target) &&
-      this.inputRef && !this.inputRef.contains(event.target)
+      this.editableRef &&
+      !this.editableRef.contains(event.target) &&
+      this.inputRef &&
+      !this.inputRef.contains(event.target)
     ) {
       this.closeEditable();
     }
@@ -68,15 +70,33 @@ class NavbarAdmin extends Component {
     this.setState({ navbarData: newNavbarData });
   };
 
+  handleAddInput = () => {
+    const { navbarData } = this.state;
+    if (navbarData.length < 10) {
+      const newNavbarData = [...navbarData];
+      newNavbarData.push({ title: "", editable: true });
+      this.setState({ navbarData: newNavbarData });
+    }
+  };
+
   handleSave = () => {
     const { navbarData } = this.state;
+
+    const filteredData = navbarData.filter((item) => item.title.trim() !== "");
+
+    if (filteredData.length === 0) {
+      return;
+    }
+
     const data = {
       table_names: ["navbar"],
       columns: ["title"],
-      values: navbarData.map((item) => item.title),
+      values: filteredData.map((item) => item.title),
     };
+
     updateNavbarData(data).then(() => {
-      // No need to reset editable state here, as it's controlled by user actions
+      // Yeniden yükleme işlemi
+      window.location.reload();
     });
   };
 
@@ -86,10 +106,7 @@ class NavbarAdmin extends Component {
 
   render() {
     const { navbarData } = this.state;
-
-    if (!navbarData) {
-      return <div>Loading...</div>;
-    }
+    const showPadding = navbarData.length <= 6 ? "20%" : "10%";
 
     return (
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -100,18 +117,22 @@ class NavbarAdmin extends Component {
           <div
             style={{
               display: "flex",
-              justifyContent: " center",
+              justifyContent: "center",
               justifyItems: "start",
               alignItems: "center",
               textAlign: "left",
-              paddingLeft: "20%",
+              paddingLeft: showPadding,
             }}
           >
             {navbarData.map((item, index) => (
               <div
                 key={index}
                 ref={(ref) => (this.editableRef = ref)}
-                style={{ position: "relative" }}
+                style={{
+                  position: "relative",
+                  display: "flex",
+                  alignItems: "center",
+                }}
               >
                 {item.editable ? (
                   <input
@@ -131,6 +152,27 @@ class NavbarAdmin extends Component {
                     }}
                   >
                     {item.title}
+                  </span>
+                )}
+                {index === navbarData.length - 1 && (
+                  <span
+                    className="add-icon"
+                    onClick={this.handleAddInput}
+                    style={{
+                      cursor: "pointer",
+                      marginLeft: "5px",
+                      display: "inline-block",
+                      width: "24px",
+                      height: "24px",
+                      borderRadius: "50%",
+                      background: "#f0f0f0",
+                      textAlign: "center",
+                      lineHeight: "24px",
+                      fontWeight: "bold",
+                      fontSize: "18px",
+                    }}
+                  >
+                    +
                   </span>
                 )}
               </div>

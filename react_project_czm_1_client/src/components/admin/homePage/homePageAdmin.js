@@ -15,20 +15,25 @@ function HomePageAdmin() {
   const handleClick = () => {
     localStorage.setItem("isLoggedIn", false);
     navigate("/homepage");
-
   };
   if (isLoggedIn) {
-    return ( 
+    return (
       <div>
         <NavbarAdmin />
         <Link to="/">Go to User Page</Link>
-        <h5 onClick={handleClick}>
-        Log out 
-      </h5>
+        <h5
+          onClick={handleClick}
+          style={{
+           maxWidth: "80px",
+            cursor: "pointer",
+          }}
+        >
+          Log out
+        </h5>
       </div>
     );
   } else {
-      return null;
+    return null;
   }
 }
 
