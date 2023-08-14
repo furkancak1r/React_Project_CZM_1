@@ -1,0 +1,34 @@
+/* navbar.css */
+
+.navbar-brand {
+  max-width: 110px;
+  max-height: 80px;
+  padding-left: 10%;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  text-align: left;
+}
+
+.nav-link {
+  margin: 0 20px;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.nav-link:hover {
+  color: #007bff;
+}
+
+.language-select {
+  margin-right: 20px;
+}
+.showPadding {
+  padding-left: 10%; /* Default padding */
+}
+
+.showPadding.wide {
+  padding-left: 20%; /* Padding when navbarData length is less than or equal to 6 */
+}

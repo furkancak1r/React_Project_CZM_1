@@ -1,11 +1,15 @@
 import React, { Component } from "react";
-import { fetchNavbarData ,translateService } from "../../../services/api-services/apiServices";
+import {
+  fetchNavbarData,
+  translateService,
+} from "../../../services/api-services/apiServices";
 import { Link } from "react-router-dom";
-import languageOptions from "../../../services/translator/languageOptions"
+import languageOptions from "../../../services/translator/languageOptions";
+import "./navbar.css";
 class Navbar extends Component {
   state = {
     navbarData: null,
-    selectedLanguage: "tr", // Varsayılan olarak Türkçe seçili
+    selectedLanguage: "tr",
     translatedTitles: [],
   };
 
@@ -31,7 +35,7 @@ class Navbar extends Component {
   translateText = async (text, targetLanguage) => {
     try {
       const data = await translateService(text, targetLanguage);
-      return data
+      return data;
     } catch (error) {
       console.error("Translation error:", error);
       return text;
@@ -60,42 +64,29 @@ class Navbar extends Component {
   render() {
     const { navbarData, selectedLanguage, translatedTitles } = this.state;
     const showPadding = navbarData && navbarData.length <= 6 ? "20%" : "10%";
-    
+
     if (!navbarData || translatedTitles.length !== navbarData.length) {
       return <div>Loading...</div>;
     }
 
-
     return (
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <Link className="navbar-brand" to="/" style={{ paddingLeft: "10%" }}>
+        <Link className="navbar-brand" to="/">
           <img src="czmLogo.png" alt="Logo" />
         </Link>
         <div className="container">
           <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              textAlign: "left",
-              padding: `10px ${showPadding}`,
-            }}
+            className={`belowContainer ${
+              navbarData.length <= 6 ? "showPadding wide" : "showPadding"
+            }`}
           >
             {navbarData.map((item, index) => (
-              <Link
-                key={index}
-                className="nav-link"
-                to="/"
-                style={{
-                  margin: "0 20px",
-                  fontWeight: "600",
-                  fontSize: "18px",
-                }}
-              >
+              <Link key={index} className="nav-link" to="/">
                 {translatedTitles[index]}
               </Link>
             ))}
           </div>
-          <div style={{ marginRight: "20px" }}>
+          <div className="language-select">
             <select
               className="form-select"
               value={selectedLanguage}

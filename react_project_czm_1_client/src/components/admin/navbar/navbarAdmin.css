@@ -1,0 +1,62 @@
+.bubble {
+  position: absolute;
+  bottom: -20px;
+  right: -380px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  visibility: hidden;
+  z-index: 1;
+  font-size: small;
+}
+.add-icon {
+  cursor: pointer;
+  margin-left: 5px;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  text-align: center;
+  line-height: 24px;
+  font-weight: bold;
+  font-size: 18px;
+}
+.item-title {
+  margin: 0 20px;
+  font-weight: 600;
+  font-size: 18px;
+}
+.navbar-brand {
+  padding-left: 10%;
+  max-width: 110px;
+  max-height: 80px;
+  position: relative;
+}
+.container {
+  float: left;
+}
+.classHandleSave {
+  margin-left: auto;
+  padding-right: 30px;
+}
+.belowContainer {
+  display: flex;
+  justify-content: center;
+  justify-items: start;
+  align-items: center;
+  text-align: left;
+}
+.navbarDataMap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.showPadding {
+  padding-left: 10%; /* Default padding */
+}
+
+.showPadding.wide {
+  padding-left: 20%; /* Padding when navbarData length is less than or equal to 6 */
+}

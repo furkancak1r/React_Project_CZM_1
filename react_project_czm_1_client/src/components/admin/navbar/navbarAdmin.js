@@ -1,6 +1,10 @@
 import React, { Component } from "react";
-import { fetchNavbarData, updateNavbarData } from "../../../services/api-services/apiServices";
+import {
+  fetchNavbarData,
+  updateNavbarData,
+} from "../../../services/api-services/apiServices";
 import { Link } from "react-router-dom";
+import "./navbarAdmin.css";
 
 class NavbarAdmin extends Component {
   state = {
@@ -104,35 +108,44 @@ class NavbarAdmin extends Component {
     event.stopPropagation();
   };
 
+  showBubble() {
+    const bubble = document.getElementById("bubble");
+    bubble.style.visibility = "visible";
+  }
+
+  hideBubble() {
+    const bubble = document.getElementById("bubble");
+    bubble.style.visibility = "hidden";
+  }
+
   render() {
     const { navbarData } = this.state;
-    const showPadding = navbarData.length <= 6 ? "20%" : "10%";
 
     return (
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <Link className="navbar-brand" to="/" style={{ paddingLeft: "10%" }}>
+        <Link
+          className="navbar-brand"
+          to="/"
+          onMouseEnter={this.showBubble}
+          onMouseLeave={this.hideBubble}
+        >
           <img src="/czmLogo.png" alt="Logo" />
+          <div id="bubble" className="bubble">
+            Max Genişlik: "110px", Max Yükseklik: "80px",
+          </div>
         </Link>
-        <div className="container" style={{ float: "left" }}>
+
+        <div className="container">
           <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              justifyItems: "start",
-              alignItems: "center",
-              textAlign: "left",
-              paddingLeft: showPadding,
-            }}
+            className={`belowContainer ${
+              navbarData.length <= 6 ? "showPadding wide" : "showPadding"
+            }`}
           >
             {navbarData.map((item, index) => (
               <div
+                className="navbarDataMap"
                 key={index}
                 ref={(ref) => (this.editableRef = ref)}
-                style={{
-                  position: "relative",
-                  display: "flex",
-                  alignItems: "center",
-                }}
               >
                 {item.editable ? (
                   <input
@@ -144,63 +157,27 @@ class NavbarAdmin extends Component {
                   />
                 ) : (
                   <span
+                    className="item-title"
                     onDoubleClick={() => this.handleDoubleClick(index)}
-                    style={{
-                      margin: "0 20px",
-                      fontWeight: "600",
-                      fontSize: "18px",
-                    }}
                   >
                     {item.title}
                   </span>
                 )}
                 {index === navbarData.length - 1 && (
-                  <span
-                    className="add-icon"
-                    onClick={this.handleAddInput}
-                    style={{
-                      cursor: "pointer",
-                      marginLeft: "5px",
-                      display: "inline-block",
-                      width: "24px",
-                      height: "24px",
-                      borderRadius: "50%",
-                      background: "#f0f0f0",
-                      textAlign: "center",
-                      lineHeight: "24px",
-                      fontWeight: "bold",
-                      fontSize: "18px",
-                    }}
-                  >
+                  <span className="add-icon" onClick={this.handleAddInput}>
                     +
                   </span>
                 )}
               </div>
             ))}
             {navbarData.length === 0 && (
-              <span
-                className="add-icon"
-                onClick={this.handleAddInput}
-                style={{
-                  cursor: "pointer",
-                  marginLeft: "5px",
-                  display: "inline-block",
-                  width: "24px",
-                  height: "24px",
-                  borderRadius: "50%",
-                  background: "#f0f0f0",
-                  textAlign: "center",
-                  lineHeight: "24px",
-                  fontWeight: "bold",
-                  fontSize: "18px",
-                }}
-              >
+              <span className="add-icon" onClick={this.handleAddInput}>
                 +
               </span>
             )}
           </div>
         </div>
-        <div style={{ marginLeft: "auto", paddingRight: "30px" }}>
+        <div className="classHandleSave">
           <button onClick={this.handleSave} className="btn btn-primary">
             Save
           </button>

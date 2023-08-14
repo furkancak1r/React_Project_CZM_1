@@ -14,7 +14,7 @@ function HomePageAdmin() {
   }, [isLoggedIn]);
   const handleClick = () => {
     localStorage.setItem("isLoggedIn", false);
-    navigate("/homepage");
+    navigate("/");
   };
   if (isLoggedIn) {
     return (
