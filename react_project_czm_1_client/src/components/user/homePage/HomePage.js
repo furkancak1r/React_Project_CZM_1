@@ -1,5 +1,5 @@
 import React from "react";
-import Navbar from "../navbar/Navbar";
+import Navbar from "../navbar/navbar";
 import { useNavigate } from "react-router-dom";
 
 function HomePage() {

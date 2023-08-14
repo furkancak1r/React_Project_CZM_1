@@ -63,7 +63,6 @@ class Navbar extends Component {
 
   render() {
     const { navbarData, selectedLanguage, translatedTitles } = this.state;
-    const showPadding = navbarData && navbarData.length <= 6 ? "20%" : "10%";
 
     if (!navbarData || translatedTitles.length !== navbarData.length) {
       return <div>Loading...</div>;

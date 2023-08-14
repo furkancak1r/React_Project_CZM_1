@@ -96,3 +96,23 @@ export const translateService = async (text, targetLanguage) => {
     return text;
   }
 };
+
+export const fetchUploadFile = async (fileName, fileExtention, fileBase64) => {
+  const apiUrl = urls[3]; 
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ fileName, fileExtention, fileBase64 }),
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    throw error;
+  }
+};

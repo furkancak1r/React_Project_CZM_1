@@ -109,6 +109,18 @@ app.post("/api/adminLogin", async (req, res) => {
   }
 });
 
+app.post("/sqldata/uploadFiles", async (req, res) => {
+  const { fileName, fileExtention ,fileBase64} = req.body;
+
+  try {
+    const response = await mysqlFunctions.uploadFiles(fileName, fileExtention ,fileBase64);
+
+    res.json(response);
+  } catch (error) {
+    console.error("Dosya yüklenirken bir hata oluştu:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });

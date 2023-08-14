@@ -128,6 +128,21 @@ function findByUsername(username) {
   });
 }
 
+function uploadFiles(fileName, fileExtention, fileBase64) {
+  return new Promise((resolve, reject) => {
+    const insertQuery = `INSERT INTO files (fileName, fileExtention, fileBase64) VALUES (?, ?, ?)`;
+    const values = [fileName, fileExtention, fileBase64];
+
+    connection.query(insertQuery, values, function (err, results) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
 module.exports = {
   createTable,
   dropTable,
@@ -136,4 +151,5 @@ module.exports = {
   selectMaxTitleVersion,
   selectRowsWithLatestTitleVersion,
   findByUsername,
+  uploadFiles
 };

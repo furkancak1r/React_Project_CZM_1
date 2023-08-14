@@ -2,9 +2,9 @@ import React, { Component } from "react";
 import {
   fetchNavbarData,
   updateNavbarData,
-} from "../../../services/api-services/apiServices";
-import { Link } from "react-router-dom";
+  } from "../../../services/api-services/apiServices";
 import "./navbarAdmin.css";
+import { uploadFile } from "../../../services/uploadFile/uploadFile";
 
 class NavbarAdmin extends Component {
   state = {
@@ -99,8 +99,7 @@ class NavbarAdmin extends Component {
     };
 
     updateNavbarData(data).then(() => {
-      // Page reload
-      window.location.reload();
+      this.fetchAndSetNavbarData();
     });
   };
 
@@ -117,23 +116,34 @@ class NavbarAdmin extends Component {
     const bubble = document.getElementById("bubble");
     bubble.style.visibility = "hidden";
   }
+   handleLogoDoubleClick = () => {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*"; 
+    fileInput.addEventListener("change", this.handleFileUpload);
+    fileInput.click();
+  };
 
+   handleFileUpload = async (e) => {
+    uploadFile(e);
+    this.fetchAndSetNavbarData();
+  };
   render() {
     const { navbarData } = this.state;
 
     return (
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <Link
+        <div
           className="navbar-brand"
-          to="/"
           onMouseEnter={this.showBubble}
           onMouseLeave={this.hideBubble}
+          onDoubleClick={this.handleLogoDoubleClick}
         >
           <img src="/czmLogo.png" alt="Logo" />
           <div id="bubble" className="bubble">
             Max Genişlik: "110px", Max Yükseklik: "80px",
           </div>
-        </Link>
+        </div>
 
         <div className="container">
           <div
