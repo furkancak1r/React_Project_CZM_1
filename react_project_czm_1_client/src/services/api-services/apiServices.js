@@ -1,4 +1,6 @@
 import urls from "./apiUrls";
+import translateConfig from "../../config";
+import { v4 as uuidv4 } from "uuid";
 
 // navbarService.js
 
@@ -42,7 +44,6 @@ export const updateNavbarData = (data) => {
     });
 };
 
-
 export const sendAdminInfo = (username, password) => {
   return fetch(urls[2], {
     method: "POST",
@@ -62,4 +63,36 @@ export const sendAdminInfo = (username, password) => {
     .catch((error) => {
       console.error("Error sending admin info:", error);
     });
+};
+
+export const translateService = async (text, targetLanguage) => {
+  const key = translateConfig.key;
+  const endpoint = translateConfig.endpoint;
+  const location = translateConfig.location;
+
+  const apiUrl = `${endpoint}/translate?api-version=3.0&from=en&to=${targetLanguage}`;
+  const requestData = [
+    {
+      text: text,
+    },
+  ];
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Ocp-Apim-Subscription-Key": key,
+        "Ocp-Apim-Subscription-Region": location,
+        "Content-type": "application/json",
+        "X-ClientTraceId": uuidv4().toString(),
+      },
+      body: JSON.stringify(requestData),
+    });
+
+    const data = await response.json();
+    return data[0].translations[0].text;
+  } catch (error) {
+    console.error("Translation error:", error);
+    return text;
+  }
 };
