@@ -23,6 +23,7 @@ function HomePage() {
       <h5 onClick={handleClick}>
         Go to Admin Page
       </h5>
+
     </div>
   );
 }

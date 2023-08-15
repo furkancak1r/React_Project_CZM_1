@@ -27,6 +27,9 @@
   font-weight: 600;
   font-size: 18px;
 }
+.item-title:hover {
+  color: #007bff;
+}
 .navbar-brand {
   padding-left: 10%;
   max-width: 110px;
@@ -36,15 +39,15 @@
 .navbar-brand img {
   max-width: 110px;
   max-height: 80px;
+  cursor: pointer;
+  border: 1px solid transparent; /* Varsayılan olarak şeffaf bir çerçeve uygula */
+  transition: border-color 0.3s ease-in-out; /* Geçiş efekti ekle */
 }
 
 .container {
   float: left;
 }
-.classHandleSave {
-  margin-left: auto;
-  padding-right: 30px;
-}
+
 .belowContainer {
   display: flex;
   justify-content: center;
@@ -64,4 +67,27 @@
 
 .showPadding.wide {
   padding-left: 20%; /* Padding when navbarData length is less than or equal to 6 */
+}
+.classHandleSave {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  padding-right: 30px;
+}
+
+.classHandleSave i {
+  font-size: 22px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+.classHandleSave i:hover {
+  color: #007bff;
+}
+.add-icon:hover{
+  color: #007bff;
+
+}
+.navbar-brand img:hover {
+  border-color: #007bff;
+
 }

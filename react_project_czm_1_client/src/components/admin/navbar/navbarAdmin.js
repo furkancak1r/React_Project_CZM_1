@@ -135,7 +135,6 @@ class NavbarAdmin extends Component {
     updateNavbarData(data).then(() => {
       this.fetchAndSetNavbarData();
       this.fetchLatestLogoFileVersion();
-
     });
   };
 
@@ -212,9 +211,8 @@ class NavbarAdmin extends Component {
           </div>
         </div>
         <div className="classHandleSave">
-          <button onClick={this.handleSave} className="btn btn-primary">
-            Save
-          </button>
+          <i class="bi bi-save" onClick={this.handleSave}></i>
+          <i class="bi bi-clock-history"></i>
         </div>
       </nav>
     );

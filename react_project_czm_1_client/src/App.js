@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import AdminPanel from "./components/admin/adminPanel/adminPanel";
 import HomePageAdmin from "./components/admin/homePage/homePageAdmin";
 import HomePage from "./components/user/homePage/HomePage";
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 class App extends Component {
   render() {
