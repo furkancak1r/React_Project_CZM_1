@@ -92,7 +92,7 @@ class NavbarAdmin extends Component {
   };
 
   handleFileUpload = async (e) => {
-    await uploadFile(e);
+    await uploadFile(e,"logo");
   };
 
 

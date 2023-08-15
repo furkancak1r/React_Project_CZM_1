@@ -4,12 +4,18 @@ const cors = require("cors");
 const app = express();
 const port = 8080;
 const bcrypt = require("bcryptjs");
-const bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
 
-app.use(express.json({ limit: '50mb' }))
+app.use(express.json({ limit: "50mb" }));
 
-app.use(bodyParser.json({ limit: '50mb' })); // Örneğin, limiti 50 MB olarak ayarlayabilirsiniz.
-app.use(bodyParser.urlencoded({limit: "50mb", extended: true, parameterLimit:50000}));
+app.use(bodyParser.json({ limit: "50mb" })); // Örneğin, limiti 50 MB olarak ayarlayabilirsiniz.
+app.use(
+  bodyParser.urlencoded({
+    limit: "50mb",
+    extended: true,
+    parameterLimit: 50000,
+  })
+);
 app.use(
   cors({
     origin: "*",
@@ -40,11 +46,9 @@ app.post("/sqldata/droptable", (req, res) => {
 
 app.post("/sqldata/insertrow", (req, res) => {
   const { table_names, columns, values } = req.body;
-  console.log("table_names[0]:", req.body);
   mysqlFunctions
     .selectMaxTitleVersion(table_names[0])
     .then((max_title_version) => {
-      console.log("max_title_version", max_title_version);
       mysqlFunctions.insertRow(
         table_names[0],
         columns[0],
@@ -103,9 +107,7 @@ app.post("/api/adminLogin", async (req, res) => {
     if (isPasswordMatch) {
       return res.status(200).json({ message: "Login successful" });
     } else {
-      return res
-        .status(401)
-        .json({ message: "Invalid username or password" });
+      return res.status(401).json({ message: "Invalid username or password" });
     }
   } catch (error) {
     console.error("Error during admin login:", error);
@@ -113,18 +115,25 @@ app.post("/api/adminLogin", async (req, res) => {
   }
 });
 
-app.post("/sqldata/uploadFiles", async (req, res) => {
-  const { fileName, fileExtention ,fileBase64} = req.body;
+app.post("/sqldata/uploadFile", async (req, res) => {
+  const { fileName, fileExtention, location, fileBase64 } = req.body;
 
   try {
-    const response = await mysqlFunctions.uploadFiles(fileName, fileExtention ,fileBase64);
+    const response = await mysqlFunctions.uploadFile(
+      fileName,
+      fileExtention,
+      location,
+      fileBase64
+    );
 
     res.json(response);
+    console.log(res)
   } catch (error) {
     console.error("Dosya yüklenirken bir hata oluştu:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });

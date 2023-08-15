@@ -4,7 +4,7 @@ const urls = [
   `${localhost}/sqldata/selectRowsWithLatestTitleVersion`,
   `${localhost}/sqldata/insertrow`,
   `${localhost}/api/adminLogin`,
-  `${localhost}/sqldata/uploadFiles`
+  `${localhost}/sqldata/uploadFile`
 
 ];
 

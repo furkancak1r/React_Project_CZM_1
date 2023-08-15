@@ -97,7 +97,7 @@ export const translateService = async (text, targetLanguage) => {
   }
 };
 
-export const fetchUploadFile = async (fileName, fileExtention, fileBase64) => {
+export const fetchUploadFile = async (fileName, fileExtention, location,fileBase64) => {
   const apiUrl = urls[3]; 
 
   try {
@@ -106,7 +106,7 @@ export const fetchUploadFile = async (fileName, fileExtention, fileBase64) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ fileName, fileExtention, fileBase64 }),
+      body: JSON.stringify({ fileName, fileExtention, location,fileBase64 }),
     });
 
     const data = await response.json();

@@ -116,30 +116,65 @@ function findByUsername(username) {
 
     connection.query(findByUsernameQuery, function (err, results) {
       if (err) {
-        reject(err); // Reject the promise on error
+        reject(err);
       } else {
         if (results.length > 0) {
-          resolve(results[0]); // Resolve the promise with the user data
+          resolve(results[0]);
         } else {
-          resolve(null); // Resolve with null if no user is found
+          resolve(null);
         }
       }
     });
   });
 }
 
-function uploadFiles(fileName, fileExtention, fileBase64) {
+function selectMaxFileVersion(location) {
   return new Promise((resolve, reject) => {
-    const insertQuery = `INSERT INTO files (fileName, fileExtention, fileBase64) VALUES (?, ?, ?)`;
-    const values = [fileName, fileExtention, fileBase64];
+    const selectMaxFileVersionQuery =
+      "SELECT MAX(file_version) as max_file_version FROM files WHERE location = ?";
 
-    connection.query(insertQuery, values, function (err, results) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(results);
+    connection.query(
+      selectMaxFileVersionQuery,
+      [location],
+      function (err, results) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(
+            results[0].max_file_version !== null
+              ? results[0].max_file_version
+              : 0
+          );
+        }
       }
-    });
+    );
+  });
+}
+
+function uploadFile(fileName, fileExtention, location, fileBase64) {
+  return new Promise((resolve, reject) => {
+    selectMaxFileVersion(location)
+      .then((maxFileVersion) => {
+        const newFileVersion = maxFileVersion + 1;
+
+        const insertQuery =
+          "INSERT INTO files (fileName, fileExtention, location, file_version, fileBase64) VALUES (?, ?, ?, ?, ?)";
+
+        connection.query(
+          insertQuery,
+          [fileName, fileExtention, location, newFileVersion, fileBase64],
+          function (err, results) {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(results);
+            }
+          }
+        );
+      })
+      .catch((error) => {
+        reject(error);
+      });
   });
 }
 
@@ -151,5 +186,6 @@ module.exports = {
   selectMaxTitleVersion,
   selectRowsWithLatestTitleVersion,
   findByUsername,
-  uploadFiles
+  selectMaxFileVersion,
+  uploadFile,
 };
