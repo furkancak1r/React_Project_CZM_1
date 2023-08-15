@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import {
   fetchNavbarData,
   updateNavbarData,
-  } from "../../../services/api-services/apiServices";
+} from "../../../services/api-services/apiServices";
 import "./navbarAdmin.css";
 import { uploadFile } from "../../../services/uploadFile/uploadFile";
 
@@ -67,13 +67,7 @@ class NavbarAdmin extends Component {
     this.setState({ navbarData: newNavbarData });
   };
 
-  handleDoubleClick = (index) => {
-    const { navbarData } = this.state;
-    const newNavbarData = [...navbarData];
-    newNavbarData[index].editable = true;
-    this.setState({ navbarData: newNavbarData });
-  };
-
+ 
   handleAddInput = () => {
     const { navbarData } = this.state;
     if (navbarData.length < 10) {
@@ -81,30 +75,50 @@ class NavbarAdmin extends Component {
       newNavbarData.push({ title: "", editable: true });
       this.setState({ navbarData: newNavbarData });
     }
+  }; 
+  
+  handleDoubleClickText = (index) => {
+    const { navbarData } = this.state;
+    const newNavbarData = [...navbarData];
+    newNavbarData[index].editable = true;
+    this.setState({ navbarData: newNavbarData });
+  };
+ handleDoubleClicked = () => {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.id = "fileInput"; // Burada id ekledik
+    fileInput.click();
   };
 
-  handleSave = () => {
+  handleFileUpload = async (e) => {
+    await uploadFile(e);
+  };
+
+
+  handleSave = async () => {
     const { navbarData } = this.state;
-
+  
     const filteredData = navbarData.filter((item) => item.title.trim() !== "");
-
+  
     if (filteredData.length === 0) {
       return;
     }
-
+  
     const data = {
       table_names: ["navbar"],
       columns: ["title"],
       values: filteredData.map((item) => item.title),
     };
-
+  
+    const fileInput = document.getElementById("fileInput");
+    if (fileInput && fileInput.files.length > 0) {
+      await this.handleFileUpload(fileInput.files[0]);
+    }
+  
     updateNavbarData(data).then(() => {
       this.fetchAndSetNavbarData();
     });
-  };
-
-  handleInputClick = (event) => {
-    event.stopPropagation();
   };
 
   showBubble() {
@@ -116,18 +130,8 @@ class NavbarAdmin extends Component {
     const bubble = document.getElementById("bubble");
     bubble.style.visibility = "hidden";
   }
-   handleLogoDoubleClick = () => {
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.accept = "image/*"; 
-    fileInput.addEventListener("change", this.handleFileUpload);
-    fileInput.click();
-  };
 
-   handleFileUpload = async (e) => {
-    uploadFile(e);
-    this.fetchAndSetNavbarData();
-  };
+ 
   render() {
     const { navbarData } = this.state;
 
@@ -137,7 +141,7 @@ class NavbarAdmin extends Component {
           className="navbar-brand"
           onMouseEnter={this.showBubble}
           onMouseLeave={this.hideBubble}
-          onDoubleClick={this.handleLogoDoubleClick}
+          onDoubleClick={this.handleDoubleClicked}
         >
           <img src="/czmLogo.png" alt="Logo" />
           <div id="bubble" className="bubble">
@@ -161,14 +165,13 @@ class NavbarAdmin extends Component {
                   <input
                     type="text"
                     value={item.title}
-                    onClick={this.handleInputClick}
                     onChange={(event) => this.handleTitleChange(index, event)}
                     ref={(ref) => (this.inputRef = ref)}
                   />
                 ) : (
                   <span
                     className="item-title"
-                    onDoubleClick={() => this.handleDoubleClick(index)}
+                    onDoubleClick={() => this.handleDoubleClickText(index)}
                   >
                     {item.title}
                   </span>

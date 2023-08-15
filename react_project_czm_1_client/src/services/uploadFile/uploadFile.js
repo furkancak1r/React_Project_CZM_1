@@ -1,6 +1,5 @@
 import {fetchUploadFile} from "../api-services/apiServices"
-export const uploadFile = async (e) => {
-  const file = e.target.files[0];
+export const uploadFile = async (file) => {
 
   if (!file) {
     return;

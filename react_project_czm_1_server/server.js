@@ -4,8 +4,12 @@ const cors = require("cors");
 const app = express();
 const port = 8080;
 const bcrypt = require("bcryptjs");
+const bodyParser = require('body-parser');
 
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }))
+
+app.use(bodyParser.json({ limit: '50mb' })); // Örneğin, limiti 50 MB olarak ayarlayabilirsiniz.
+app.use(bodyParser.urlencoded({limit: "50mb", extended: true, parameterLimit:50000}));
 app.use(
   cors({
     origin: "*",
