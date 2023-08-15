@@ -5,7 +5,10 @@ import {
 } from "../../../services/api-services/apiServices";
 import "./navbarAdmin.css";
 import { uploadFile } from "../../../services/uploadFile/uploadFile";
-
+import {
+  addGlobalEventListeners,
+  removeGlobalEventListeners,
+} from "../../../services/eventHandlers/eventHandlers.js";
 class NavbarAdmin extends Component {
   state = {
     navbarData: [],
@@ -16,14 +19,11 @@ class NavbarAdmin extends Component {
 
   componentDidMount() {
     this.fetchAndSetNavbarData();
-
-    document.addEventListener("mousedown", this.handleClick);
-    document.addEventListener("keydown", this.handleKeyDown);
+    addGlobalEventListeners(this.handleClick, this.handleKeyDown);
   }
 
   componentWillUnmount() {
-    document.removeEventListener("mousedown", this.handleClick);
-    document.removeEventListener("keydown", this.handleKeyDown);
+    removeGlobalEventListeners(this.handleClick, this.handleKeyDown);
   }
 
   fetchAndSetNavbarData = () => {
@@ -67,7 +67,6 @@ class NavbarAdmin extends Component {
     this.setState({ navbarData: newNavbarData });
   };
 
- 
   handleAddInput = () => {
     const { navbarData } = this.state;
     if (navbarData.length < 10) {
@@ -75,47 +74,50 @@ class NavbarAdmin extends Component {
       newNavbarData.push({ title: "", editable: true });
       this.setState({ navbarData: newNavbarData });
     }
-  }; 
-  
+  };
+
   handleDoubleClickText = (index) => {
     const { navbarData } = this.state;
     const newNavbarData = [...navbarData];
     newNavbarData[index].editable = true;
     this.setState({ navbarData: newNavbarData });
   };
- handleDoubleClicked = () => {
+  handleDoubleClicked = () => {
     const fileInput = document.createElement("input");
     fileInput.type = "file";
     fileInput.accept = "image/*";
-    fileInput.id = "fileInput"; // Burada id ekledik
+    fileInput.addEventListener("change", () =>
+      this.handleFileUpload(fileInput)
+    );
     fileInput.click();
   };
 
-  handleFileUpload = async (e) => {
-    await uploadFile(e,"logo");
+  handleFileUpload = async (fileInput) => {
+    const file = fileInput.files[0];
+    await uploadFile(file, "logo");
   };
-
 
   handleSave = async () => {
     const { navbarData } = this.state;
-  
+
     const filteredData = navbarData.filter((item) => item.title.trim() !== "");
-  
+
     if (filteredData.length === 0) {
       return;
     }
-  
+
     const data = {
       table_names: ["navbar"],
       columns: ["title"],
       values: filteredData.map((item) => item.title),
     };
-  
+
     const fileInput = document.getElementById("fileInput");
+    console.log("fileInput:", fileInput);
     if (fileInput && fileInput.files.length > 0) {
       await this.handleFileUpload(fileInput.files[0]);
     }
-  
+
     updateNavbarData(data).then(() => {
       this.fetchAndSetNavbarData();
     });
@@ -131,7 +133,6 @@ class NavbarAdmin extends Component {
     bubble.style.visibility = "hidden";
   }
 
- 
   render() {
     const { navbarData } = this.state;
 

@@ -1,8 +1,6 @@
-import {fetchUploadFile} from "../api-services/apiServices"
-export const uploadFile = async (file,location) => {
-
+import { fetchUploadFile } from "../api-services/apiServices";
+export const uploadFile = async (file, location) => {
   if (!file) {
-    alert("noldu mk");
     return;
   }
 
@@ -10,10 +8,7 @@ export const uploadFile = async (file,location) => {
     const fileReader = new FileReader();
     fileReader.onload = async () => {
       const fileBase64 = fileReader.result.split(",")[1];
-
-      // Dosyayı base64'e çevirip sunucuya yükle
-      await fetchUploadFile(file.name, file.type, location,fileBase64);
-
+      await fetchUploadFile(file.name, file.type, location, fileBase64);
     };
 
     fileReader.readAsDataURL(file);

@@ -2,14 +2,10 @@ import urls from "./apiUrls";
 import translateConfig from "../../config";
 import { v4 as uuidv4 } from "uuid";
 
-// navbarService.js
-
 export const fetchNavbarData = () => {
-  // Table and column information to be sent in the request body
   const table_names = "navbar";
   const columns = "title";
 
-  // Make the POST request to fetch the Navbar data from the server
   return fetch(urls[0], {
     method: "POST",
     headers: {
@@ -33,11 +29,11 @@ export const updateNavbarData = (data) => {
   })
     .then((response) => {
       console.log("Response from the server:", response);
-      return response.text(); // Change to response.text() for debugging
+      return response.text();
     })
     .then((textResponse) => {
-      console.log("Text response from the server:", textResponse); // Log the text response
-      return JSON.parse(textResponse); // Try parsing the text response as JSON
+      console.log("Text response from the server:", textResponse);
+      return JSON.parse(textResponse);
     })
     .catch((error) => {
       console.error("Error updating Navbar data:", error);
@@ -50,15 +46,15 @@ export const sendAdminInfo = (username, password) => {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ username, password }), // Verileri JSON olarak göndermek
+    body: JSON.stringify({ username, password }),
   })
     .then((response) => {
       console.log("Response from the server:", response);
-      return response.text(); // Hata ayıklama için response.text() olarak dönebilirsiniz
+      return response.text();
     })
     .then((textResponse) => {
-      console.log("Text response from the server:", textResponse); // Text cevabını logla
-      return JSON.parse(textResponse); // Text cevabını JSON olarak çözümle
+      console.log("Text response from the server:", textResponse);
+      return JSON.parse(textResponse);
     })
     .catch((error) => {
       console.error("Error sending admin info:", error);
@@ -97,8 +93,13 @@ export const translateService = async (text, targetLanguage) => {
   }
 };
 
-export const fetchUploadFile = async (fileName, fileExtention, location,fileBase64) => {
-  const apiUrl = urls[3]; 
+export const fetchUploadFile = async (
+  fileName,
+  fileExtention,
+  location,
+  fileBase64
+) => {
+  const apiUrl = urls[3];
 
   try {
     const response = await fetch(apiUrl, {
@@ -106,7 +107,27 @@ export const fetchUploadFile = async (fileName, fileExtention, location,fileBase
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ fileName, fileExtention, location,fileBase64 }),
+      body: JSON.stringify({ fileName, fileExtention, location, fileBase64 }),
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    throw error;
+  }
+};
+
+export const fetchLatestFileVersion = async (location) => {
+  const apiUrl = urls[4];
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ location }),
     });
 
     const data = await response.json();

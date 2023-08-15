@@ -127,12 +127,28 @@ app.post("/sqldata/uploadFile", async (req, res) => {
     );
 
     res.json(response);
-    console.log(res)
   } catch (error) {
     console.error("Dosya yüklenirken bir hata oluştu:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+app.post("/sqldata/getLatestFileVersionByLocation", async (req, res) => {
+  const { location } = req.body;
+  
+  try {
+    const latestFileVersion = await mysqlFunctions.selectMaxFileVersion(location);
+    const fileInfo = await mysqlFunctions.getFileByVersionAndLocation(location,latestFileVersion);
+    res.json(fileInfo);
+    console.log("latestFileVersion:",latestFileVersion);
+
+    console.log("fileInfo:",fileInfo);
+  } catch (error) {
+    console.error("Veri çekilirken bir hata oluştu:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

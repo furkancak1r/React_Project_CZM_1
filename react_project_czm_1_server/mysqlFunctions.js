@@ -155,7 +155,7 @@ function uploadFile(fileName, fileExtention, location, fileBase64) {
   return new Promise((resolve, reject) => {
     selectMaxFileVersion(location)
       .then((maxFileVersion) => {
-        const newFileVersion = maxFileVersion + 1;
+        const newFileVersion = Number(maxFileVersion) + 1;
 
         const insertQuery =
           "INSERT INTO files (fileName, fileExtention, location, file_version, fileBase64) VALUES (?, ?, ?, ?, ?)";
@@ -177,7 +177,23 @@ function uploadFile(fileName, fileExtention, location, fileBase64) {
       });
   });
 }
+function getFileByVersionAndLocation(location, version) {
+  return new Promise((resolve, reject) => {
+    const selectQuery = `
+      SELECT *
+      FROM files
+      WHERE location = ? AND file_version = ?
+    `;
 
+    connection.query(selectQuery, [location, version], function (err, results) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results[0]);
+      }
+    });
+  });
+}
 module.exports = {
   createTable,
   dropTable,
@@ -188,4 +204,5 @@ module.exports = {
   findByUsername,
   selectMaxFileVersion,
   uploadFile,
+  getFileByVersionAndLocation,
 };
