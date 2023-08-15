@@ -140,9 +140,7 @@ app.post("/sqldata/getLatestFileVersionByLocation", async (req, res) => {
     const latestFileVersion = await mysqlFunctions.selectMaxFileVersion(location);
     const fileInfo = await mysqlFunctions.getFileByVersionAndLocation(location,latestFileVersion);
     res.json(fileInfo);
-    console.log("latestFileVersion:",latestFileVersion);
 
-    console.log("fileInfo:",fileInfo);
   } catch (error) {
     console.error("Veri çekilirken bir hata oluştu:", error);
     res.status(500).json({ error: "Internal server error" });

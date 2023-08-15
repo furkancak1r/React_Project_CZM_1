@@ -33,6 +33,11 @@
   max-height: 80px;
   position: relative;
 }
+.navbar-brand img {
+  max-width: 110px;
+  max-height: 80px;
+}
+
 .container {
   float: left;
 }

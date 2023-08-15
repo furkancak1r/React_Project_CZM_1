@@ -9,9 +9,11 @@ import {
   addGlobalEventListeners,
   removeGlobalEventListeners,
 } from "../../../services/eventHandlers/eventHandlers.js";
+import { fetchLatestFileVersion } from "../../../services/api-services/apiServices";
 class NavbarAdmin extends Component {
   state = {
     navbarData: [],
+    latestFileVersionInfo: null,
   };
 
   editableRef = null;
@@ -19,6 +21,7 @@ class NavbarAdmin extends Component {
 
   componentDidMount() {
     this.fetchAndSetNavbarData();
+    this.fetchLatestLogoFileVersion();
     addGlobalEventListeners(this.handleClick, this.handleKeyDown);
   }
 
@@ -32,6 +35,17 @@ class NavbarAdmin extends Component {
         this.setState({ navbarData: data });
       }
     });
+  };
+
+  fetchLatestLogoFileVersion = () => {
+    const location = "logo";
+    fetchLatestFileVersion(location)
+      .then((fileInfo) => {
+        this.setState({ latestFileVersionInfo: fileInfo });
+      })
+      .catch((error) => {
+        console.error("Error fetching latest logo file version:", error);
+      });
   };
 
   handleClick = (event) => {
@@ -120,6 +134,8 @@ class NavbarAdmin extends Component {
 
     updateNavbarData(data).then(() => {
       this.fetchAndSetNavbarData();
+      this.fetchLatestLogoFileVersion();
+
     });
   };
 
@@ -134,7 +150,7 @@ class NavbarAdmin extends Component {
   }
 
   render() {
-    const { navbarData } = this.state;
+    const { navbarData, latestFileVersionInfo } = this.state;
 
     return (
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -144,12 +160,16 @@ class NavbarAdmin extends Component {
           onMouseLeave={this.hideBubble}
           onDoubleClick={this.handleDoubleClicked}
         >
-          <img src="/czmLogo.png" alt="Logo" />
+          {latestFileVersionInfo && (
+            <img
+              src={`data:${latestFileVersionInfo.fileExtention};base64,${latestFileVersionInfo.fileBase64}`}
+              alt="Logo"
+            />
+          )}
           <div id="bubble" className="bubble">
             Max Genişlik: "110px", Max Yükseklik: "80px",
           </div>
         </div>
-
         <div className="container">
           <div
             className={`belowContainer ${
