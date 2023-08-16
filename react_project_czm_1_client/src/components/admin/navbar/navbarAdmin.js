@@ -228,9 +228,8 @@ class NavbarAdmin extends Component {
         </div>
         <div className="container">
           <div
-            className={`belowContainer ${
-              navbarData.length <= 6 ? "showPadding wide" : "showPadding"
-            }`}
+            className={`belowContainer ${navbarData.length <= 6 ? "showPadding wide" : "showPadding"
+              }`}
           >
             {navbarData.map((item, index) => (
               <div
@@ -281,11 +280,19 @@ class NavbarAdmin extends Component {
             {latestFilesInfosForScreenshots.map((fileInfo, index) => (
               <li
                 key={index}
-                className={`img-container ${
-                  enlargedImageVisible ? "enlarged" : ""
-                }`}
-                onClick={() => this.handleScreenshotClick()}
+                className={`img-container ${enlargedImageVisible ? "enlarged" : ""
+                  }`
+                }
+                onClick={enlargedImageVisible ? this.handleScreenshotClick : null}
+
               >
+                <div className="image-overlay">
+                  <i className="bi bi-arrow-90deg-left"></i>
+                  <i
+                    className="bi bi-arrows-fullscreen"
+                    onClick={this.handleScreenshotClick}
+                  ></i>
+                </div>
                 <img
                   src={`data:${fileInfo.fileExtention};base64,${fileInfo.fileBase64}`}
                   alt={`Screenshot ${index + 1}`}
@@ -295,6 +302,7 @@ class NavbarAdmin extends Component {
             ))}
           </div>
         </div>
+
       </nav>
     );
   }
