@@ -272,17 +272,17 @@ class NavbarAdmin extends Component {
           ref={(ref) => (this.sidebarRef = ref)}
         >
           <div className="sidebarHeader">Son Kaydedilenler</div>
-          <ul>
+          <div className="sidebarImageAll">
             {latestFilesInfosForScreenshots.map((fileInfo, index) => (
-              <li key={index}>
+              <li key={index} className="img-container">
+                <i className="bi bi-arrows-fullscreen"></i>
                 <img
                   src={`data:${fileInfo.fileExtention};base64,${fileInfo.fileBase64}`}
                   alt={`Screenshot ${index + 1}`}
                 />
               </li>
-            ))}
-          </ul>
-        </div>
+            ))}</div>
+          </div>
       </nav>
     );
   }
