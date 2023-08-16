@@ -50,11 +50,11 @@
   list-style-type: none;
   position: relative;
   cursor: pointer;
-
 }
 
 .img-container:hover {
   border-color: #007bff;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.208);
 }
 .img-container.enlarged {
   position: fixed;
@@ -63,13 +63,11 @@
   transform: translate(-50%, -50%);
   z-index: 1000;
   border: 1px solid transparent;
-  box-shadow: 0 0 50px rgba(0, 123, 255, 0.481); /* Adjust the shadow as needed */
+  box-shadow: 0 0 50px rgba(0, 123, 255, 0.185);
   cursor: zoom-out;
-  
 }
 
-/* This rule helps revert the border and shadow when zoom-out happens */
 .img-container.enlarged:hover {
   border: 1px solid #007bff;
-  box-shadow: 0 0 20px rgba(0, 123, 255, 0.8); /* Keep the shadow consistent */
+  box-shadow: 0 0 50px rgba(0, 123, 255, 0.098);
 }

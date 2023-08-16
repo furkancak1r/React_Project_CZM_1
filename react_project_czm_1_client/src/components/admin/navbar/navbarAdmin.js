@@ -33,12 +33,12 @@ class NavbarAdmin extends Component {
     this.fetchLatestFileInfosForScreenshots();
 
     addGlobalEventListeners(this.handleClickText, this.handleKeyDown);
-    addGlobalEventListeners(this.handleClickScreenshot);
+    addGlobalEventListeners(this.handleOutsideClick);
   }
 
   componentWillUnmount() {
     removeGlobalEventListeners(this.handleClickText, this.handleKeyDown);
-    removeGlobalEventListeners(this.handleClickScreenshot);
+    addGlobalEventListeners(this.handleOutsideClick);
   }
 
   fetchAndSetNavbarData = () => {
@@ -77,6 +77,15 @@ class NavbarAdmin extends Component {
       !this.inputRef.contains(event.target)
     ) {
       this.closeEditable();
+    }
+  };
+  handleOutsideClick = (event) => {
+    if (
+      this.state.showSidebar &&
+      this.sidebarRef &&
+      !this.sidebarRef.contains(event.target)
+    ) {
+      this.setState({ showSidebar: false });
     }
   };
 
