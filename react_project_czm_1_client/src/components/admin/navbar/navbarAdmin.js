@@ -10,10 +10,12 @@ import {
   removeGlobalEventListeners,
 } from "../../../services/eventHandlers/eventHandlers.js";
 import { fetchLatestFileVersion } from "../../../services/api-services/apiServices";
+import "./sideBar.css";
 class NavbarAdmin extends Component {
   state = {
     navbarData: [],
     latestFileVersionInfo: null,
+    showSidebar: false,
   };
 
   editableRef = null;
@@ -23,10 +25,12 @@ class NavbarAdmin extends Component {
     this.fetchAndSetNavbarData();
     this.fetchLatestLogoFileVersion();
     addGlobalEventListeners(this.handleClick, this.handleKeyDown);
+    addGlobalEventListeners(this.handleOutsideClick);
   }
 
   componentWillUnmount() {
     removeGlobalEventListeners(this.handleClick, this.handleKeyDown);
+    removeGlobalEventListeners(this.handleOutsideClick);
   }
 
   fetchAndSetNavbarData = () => {
@@ -147,9 +151,23 @@ class NavbarAdmin extends Component {
     const bubble = document.getElementById("bubble");
     bubble.style.visibility = "hidden";
   }
+  toggleSidebar = () => {
+    this.setState((prevState) => ({
+      showSidebar: !prevState.showSidebar,
+    }));
+  };
+  handleOutsideClick = (event) => {
+    if (
+      this.state.showSidebar &&
+      this.sidebarRef &&
+      !this.sidebarRef.contains(event.target)
+    ) {
+      this.setState({ showSidebar: false });
+    }
+  };
 
   render() {
-    const { navbarData, latestFileVersionInfo } = this.state;
+    const { navbarData, latestFileVersionInfo, showSidebar } = this.state;
 
     return (
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -211,8 +229,15 @@ class NavbarAdmin extends Component {
           </div>
         </div>
         <div className="classHandleSave">
-          <i class="bi bi-save" onClick={this.handleSave}></i>
-          <i class="bi bi-clock-history"></i>
+          <i className="bi bi-save" onClick={this.handleSave}></i>
+          <i className="bi bi-clock-history" onClick={this.toggleSidebar}></i>
+        </div>
+
+        <div
+          className={`sidebar ${showSidebar ? "active" : ""}`}
+          ref={(ref) => (this.sidebarRef = ref)}
+        >
+          {/* Content of the sidebar */}
         </div>
       </nav>
     );
