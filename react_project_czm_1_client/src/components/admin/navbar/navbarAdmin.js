@@ -11,6 +11,8 @@ import {
 } from "../../../services/eventHandlers/eventHandlers.js";
 import { fetchLatestFileVersion } from "../../../services/api-services/apiServices";
 import "./sideBar.css";
+import { takeFullScreenshot } from "../../../services/screenshot/screenshot";
+import { dataURLtoFile } from "../../../services/api-services/dataURLtoFile/dataURLtoFile";
 class NavbarAdmin extends Component {
   state = {
     navbarData: [],
@@ -140,6 +142,14 @@ class NavbarAdmin extends Component {
       this.fetchAndSetNavbarData();
       this.fetchLatestLogoFileVersion();
     });
+    try {
+      const screenshot = await takeFullScreenshot();
+
+      const screenshotFile = dataURLtoFile(screenshot, "screenshot.png");
+      await uploadFile(screenshotFile, "screenshots");
+    } catch (error) {
+      console.error("Ekran görüntüsü alınırken hata oluştu:", error);
+    }
   };
 
   showBubble() {
