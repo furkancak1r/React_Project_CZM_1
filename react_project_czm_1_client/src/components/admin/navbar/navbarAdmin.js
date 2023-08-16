@@ -13,29 +13,32 @@ import { fetchLatestFileVersions } from "../../../services/api-services/apiServi
 import "./sideBar.css";
 import { takeFullScreenshot } from "../../../services/screenshot/screenshot";
 import { dataURLtoFile } from "../../../services/dataURLtoFile/dataURLtoFile";
+
 class NavbarAdmin extends Component {
   state = {
     navbarData: [],
     latestFileInfoForLogo: [],
     latestFilesInfosForScreenshots: [],
     showSidebar: false,
+    enlargedImageVisible: false,
   };
 
   editableRef = null;
   inputRef = null;
+  enlargedImageRef = null;
 
   componentDidMount() {
     this.fetchAndSetNavbarData();
     this.fetchLatestFileInfo("logo");
     this.fetchLatestFileInfosForScreenshots();
 
-    addGlobalEventListeners(this.handleClick, this.handleKeyDown);
-    addGlobalEventListeners(this.handleOutsideClick);
+    addGlobalEventListeners(this.handleClickText, this.handleKeyDown);
+    addGlobalEventListeners(this.handleClickScreenshot);
   }
 
   componentWillUnmount() {
-    removeGlobalEventListeners(this.handleClick, this.handleKeyDown);
-    removeGlobalEventListeners(this.handleOutsideClick);
+    removeGlobalEventListeners(this.handleClickText, this.handleKeyDown);
+    removeGlobalEventListeners(this.handleClickScreenshot);
   }
 
   fetchAndSetNavbarData = () => {
@@ -55,6 +58,7 @@ class NavbarAdmin extends Component {
         console.error("Error fetching latest logo file version:", error);
       });
   };
+
   fetchLatestFileInfosForScreenshots = () => {
     fetchLatestFileVersions("screenshots", 4) // Fetch latest 4 screenshots
       .then((fileInfos) => {
@@ -64,7 +68,8 @@ class NavbarAdmin extends Component {
         console.error("Error fetching latest screenshot file versions:", error);
       });
   };
-  handleClick = (event) => {
+
+  handleClickText = (event) => {
     if (
       this.editableRef &&
       !this.editableRef.contains(event.target) &&
@@ -75,6 +80,11 @@ class NavbarAdmin extends Component {
     }
   };
 
+  handleScreenshotClick = () => {
+    this.setState((prevState) => ({
+      enlargedImageVisible: !prevState.enlargedImageVisible,
+    }));
+  };
   handleKeyDown = (event) => {
     if (event.key === "Enter") {
       this.closeEditable();
@@ -112,6 +122,7 @@ class NavbarAdmin extends Component {
     newNavbarData[index].editable = true;
     this.setState({ navbarData: newNavbarData });
   };
+
   handleDoubleClicked = () => {
     const fileInput = document.createElement("input");
     fileInput.type = "file";
@@ -152,6 +163,7 @@ class NavbarAdmin extends Component {
       this.fetchAndSetNavbarData();
       this.fetchLatestFileInfo("logo");
     });
+
     try {
       const screenshot = await takeFullScreenshot();
 
@@ -171,19 +183,11 @@ class NavbarAdmin extends Component {
     const bubble = document.getElementById("bubble");
     bubble.style.visibility = "hidden";
   }
+
   toggleSidebar = () => {
     this.setState((prevState) => ({
       showSidebar: !prevState.showSidebar,
     }));
-  };
-  handleOutsideClick = (event) => {
-    if (
-      this.state.showSidebar &&
-      this.sidebarRef &&
-      !this.sidebarRef.contains(event.target)
-    ) {
-      this.setState({ showSidebar: false });
-    }
   };
 
   render() {
@@ -192,17 +196,9 @@ class NavbarAdmin extends Component {
       latestFileInfoForLogo,
       latestFilesInfosForScreenshots,
       showSidebar,
+      enlargedImageVisible,
     } = this.state;
-    console.log(
-      "latestFilesInfosForScreenshots:",
-      latestFilesInfosForScreenshots
-    );
-    console.log(
-      "Type of latestFilesInfosForScreenshots:",
-      typeof latestFilesInfosForScreenshots
-    );
-    console.log("latestFileInfoForLogo:", latestFileInfoForLogo);
-    console.log("navbarData:", navbarData);
+
     return (
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <div
@@ -274,15 +270,22 @@ class NavbarAdmin extends Component {
           <div className="sidebarHeader">Son Kaydedilenler</div>
           <div className="sidebarImageAll">
             {latestFilesInfosForScreenshots.map((fileInfo, index) => (
-              <li key={index} className="img-container">
-                <i className="bi bi-arrows-fullscreen"></i>
+              <li
+                key={index}
+                className={`img-container ${
+                  enlargedImageVisible ? "enlarged" : ""
+                }`}
+                onClick={() => this.handleScreenshotClick()}
+              >
                 <img
                   src={`data:${fileInfo.fileExtention};base64,${fileInfo.fileBase64}`}
                   alt={`Screenshot ${index + 1}`}
+                  ref={(ref) => (this.enlargedImageRef = ref)}
                 />
               </li>
-            ))}</div>
+            ))}
           </div>
+        </div>
       </nav>
     );
   }

@@ -40,12 +40,6 @@
   padding-top: 20px;
 }
 
-.img-container i {
-  position: absolute;
-  top: -2px;
-  right: 3px;
-  cursor: pointer;
-}
 .img-container img {
   object-fit: cover;
   width: 100%;
@@ -55,17 +49,27 @@
 .sidebar li {
   list-style-type: none;
   position: relative;
+  cursor: pointer;
+
 }
 
 .img-container:hover {
   border-color: #007bff;
+}
+.img-container.enlarged {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  border: 1px solid transparent;
+  box-shadow: 0 0 50px rgba(0, 123, 255, 0.481); /* Adjust the shadow as needed */
+  cursor: zoom-out;
   
 }
-.sidebar li:hover i {
-  display: block;
-  color: #007bff;
-}
-.sidebar li i {
-  display: none;
-  transition: display 0.3s ease-in-out;
+
+/* This rule helps revert the border and shadow when zoom-out happens */
+.img-container.enlarged:hover {
+  border: 1px solid #007bff;
+  box-shadow: 0 0 20px rgba(0, 123, 255, 0.8); /* Keep the shadow consistent */
 }
