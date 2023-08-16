@@ -90,18 +90,15 @@ app.post("/sqldata/selectrows", async (req, res) => {
 });
 
 app.post("/api/adminLogin", async (req, res) => {
-  // async ekledik
   const { username, password } = req.body;
 
   try {
-    // Kullanıcının veritabanında kayıtlı şifresini alın
     const user = await mysqlFunctions.findByUsername(username);
 
     if (!user) {
       return res.status(401).json({ message: "Invalid username or password" });
     }
 
-    // Kullanıcının girdiği şifreyi kayıtlı şifre ile karşılaştır
     const isPasswordMatch = bcrypt.compare(password, user.passwordHash);
 
     if (isPasswordMatch) {
@@ -133,13 +130,21 @@ app.post("/sqldata/uploadFile", async (req, res) => {
   }
 });
 
-app.post("/sqldata/getLatestFileVersionByLocation", async (req, res) => {
-  const { location } = req.body;
-  
+app.post("/sqldata/getLatestFileVersionsByLocation", async (req, res) => {
+  const { location, count } = req.body;
+
   try {
     const latestFileVersion = await mysqlFunctions.selectMaxFileVersion(location);
-    const fileInfo = await mysqlFunctions.getFileByVersionAndLocation(location,latestFileVersion);
-    res.json(fileInfo);
+    const fileVersions = [];
+
+    for (let i = latestFileVersion; i > Math.max(latestFileVersion - count, 0); i--) {
+      const fileInfo = await mysqlFunctions.getFileByVersionAndLocation(location, i);
+      if (fileInfo) {
+        fileVersions.push(fileInfo);
+      }
+    }
+
+    res.json(fileVersions);
 
   } catch (error) {
     console.error("Veri çekilirken bir hata oluştu:", error);

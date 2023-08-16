@@ -118,7 +118,7 @@ export const fetchUploadFile = async (
   }
 };
 
-export const fetchLatestFileVersion = async (location) => {
+export const fetchLatestFileVersions = async (location, count) => {
   const apiUrl = urls[4];
 
   try {
@@ -127,13 +127,14 @@ export const fetchLatestFileVersion = async (location) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ location }),
+      body: JSON.stringify({ location, count }),
     });
 
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error uploading file:", error);
+    console.error("Error fetching latest file versions:", error);
     throw error;
   }
 };
+

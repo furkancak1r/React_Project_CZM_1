@@ -9,14 +9,15 @@ import {
   addGlobalEventListeners,
   removeGlobalEventListeners,
 } from "../../../services/eventHandlers/eventHandlers.js";
-import { fetchLatestFileVersion } from "../../../services/api-services/apiServices";
+import { fetchLatestFileVersions } from "../../../services/api-services/apiServices";
 import "./sideBar.css";
 import { takeFullScreenshot } from "../../../services/screenshot/screenshot";
-import { dataURLtoFile } from "../../../services/api-services/dataURLtoFile/dataURLtoFile";
+import { dataURLtoFile } from "../../../services/dataURLtoFile/dataURLtoFile";
 class NavbarAdmin extends Component {
   state = {
     navbarData: [],
-    latestFileVersionInfo: null,
+    latestFileInfoForLogo: [],
+    latestFilesInfosForScreenshots: [],
     showSidebar: false,
   };
 
@@ -25,7 +26,9 @@ class NavbarAdmin extends Component {
 
   componentDidMount() {
     this.fetchAndSetNavbarData();
-    this.fetchLatestLogoFileVersion();
+    this.fetchLatestFileInfo("logo");
+    this.fetchLatestFileInfosForScreenshots();
+
     addGlobalEventListeners(this.handleClick, this.handleKeyDown);
     addGlobalEventListeners(this.handleOutsideClick);
   }
@@ -43,17 +46,24 @@ class NavbarAdmin extends Component {
     });
   };
 
-  fetchLatestLogoFileVersion = () => {
-    const location = "logo";
-    fetchLatestFileVersion(location)
+  fetchLatestFileInfo = (location) => {
+    fetchLatestFileVersions(location, 1) // 1 is for to get the latest logo
       .then((fileInfo) => {
-        this.setState({ latestFileVersionInfo: fileInfo });
+        this.setState({ latestFileInfoForLogo: fileInfo[0] });
       })
       .catch((error) => {
         console.error("Error fetching latest logo file version:", error);
       });
   };
-
+  fetchLatestFileInfosForScreenshots = () => {
+    fetchLatestFileVersions("screenshots", 4) // Fetch latest 4 screenshots
+      .then((fileInfos) => {
+        this.setState({ latestFilesInfosForScreenshots: fileInfos });
+      })
+      .catch((error) => {
+        console.error("Error fetching latest screenshot file versions:", error);
+      });
+  };
   handleClick = (event) => {
     if (
       this.editableRef &&
@@ -140,7 +150,7 @@ class NavbarAdmin extends Component {
 
     updateNavbarData(data).then(() => {
       this.fetchAndSetNavbarData();
-      this.fetchLatestLogoFileVersion();
+      this.fetchLatestFileInfo("logo");
     });
     try {
       const screenshot = await takeFullScreenshot();
@@ -177,8 +187,22 @@ class NavbarAdmin extends Component {
   };
 
   render() {
-    const { navbarData, latestFileVersionInfo, showSidebar } = this.state;
-
+    const {
+      navbarData,
+      latestFileInfoForLogo,
+      latestFilesInfosForScreenshots,
+      showSidebar,
+    } = this.state;
+    console.log(
+      "latestFilesInfosForScreenshots:",
+      latestFilesInfosForScreenshots
+    );
+    console.log(
+      "Type of latestFilesInfosForScreenshots:",
+      typeof latestFilesInfosForScreenshots
+    );
+    console.log("latestFileInfoForLogo:", latestFileInfoForLogo);
+    console.log("navbarData:", navbarData);
     return (
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <div
@@ -187,9 +211,9 @@ class NavbarAdmin extends Component {
           onMouseLeave={this.hideBubble}
           onDoubleClick={this.handleDoubleClicked}
         >
-          {latestFileVersionInfo && (
+          {latestFileInfoForLogo && (
             <img
-              src={`data:${latestFileVersionInfo.fileExtention};base64,${latestFileVersionInfo.fileBase64}`}
+              src={`data:${latestFileInfoForLogo.fileExtention};base64,${latestFileInfoForLogo.fileBase64}`}
               alt="Logo"
             />
           )}
@@ -247,7 +271,17 @@ class NavbarAdmin extends Component {
           className={`sidebar ${showSidebar ? "active" : ""}`}
           ref={(ref) => (this.sidebarRef = ref)}
         >
-          {/* Content of the sidebar */}
+          <div className="sidebarHeader">Son Kaydedilenler</div>
+          <ul>
+            {latestFilesInfosForScreenshots.map((fileInfo, index) => (
+              <li key={index}>
+                <img
+                  src={`data:${fileInfo.fileExtention};base64,${fileInfo.fileBase64}`}
+                  alt={`Screenshot ${index + 1}`}
+                />
+              </li>
+            ))}
+          </ul>
         </div>
       </nav>
     );
