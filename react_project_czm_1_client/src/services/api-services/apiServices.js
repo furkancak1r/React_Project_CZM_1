@@ -2,63 +2,58 @@ import urls from "./apiUrls";
 import translateConfig from "../../config";
 import { v4 as uuidv4 } from "uuid";
 
-export const fetchNavbarData = () => {
+export const fetchNavbarData = async () => {
   const table_names = "navbar";
   const columns = "title";
 
-  return fetch(urls[0], {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ table_names, columns }),
-  })
-    .then((response) => response.json())
-    .catch((error) => {
-      console.error("Error fetching Navbar data:", error);
+  try {
+    const response = await fetch(urls[0], {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ table_names, columns }),
     });
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching Navbar data:", error);
+  }
 };
 
-export const updateNavbarData = (data) => {
-  return fetch(urls[1], {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  })
-    .then((response) => {
-      console.log("Response from the server:", response);
-      return response.text();
-    })
-    .then((textResponse) => {
-      console.log("Text response from the server:", textResponse);
-      return JSON.parse(textResponse);
-    })
-    .catch((error) => {
-      console.error("Error updating Navbar data:", error);
+export const updateNavbarData = async (data) => {
+  try {
+    const response = await fetch(urls[1], {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
     });
+    console.log("Response from the server:", response);
+    const textResponse = await response.text();
+    console.log("Text response from the server:", textResponse);
+    return JSON.parse(textResponse);
+  } catch (error) {
+    console.error("Error updating Navbar data:", error);
+  }
 };
 
-export const sendAdminInfo = (username, password) => {
-  return fetch(urls[2], {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ username, password }),
-  })
-    .then((response) => {
-      console.log("Response from the server:", response);
-      return response.text();
-    })
-    .then((textResponse) => {
-      console.log("Text response from the server:", textResponse);
-      return JSON.parse(textResponse);
-    })
-    .catch((error) => {
-      console.error("Error sending admin info:", error);
+export const sendAdminInfo = async (username, password) => {
+  try {
+    const response = await fetch(urls[2], {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
     });
+    console.log("Response from the server:", response);
+    const textResponse = await response.text();
+    console.log("Text response from the server:", textResponse);
+    return JSON.parse(textResponse);
+  } catch (error) {
+    console.error("Error sending admin info:", error);
+  }
 };
 
 export const translateService = async (text, targetLanguage) => {
@@ -131,6 +126,7 @@ export const fetchLatestFileVersions = async (location, count) => {
     });
 
     const data = await response.json();
+
     return data;
   } catch (error) {
     console.error("Error fetching latest file versions:", error);

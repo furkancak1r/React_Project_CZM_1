@@ -51,18 +51,17 @@ class NavbarAdmin extends Component {
     });
   };
 
-  fetchLatestFileInfo = (location) => {
-    fetchLatestFileVersions(location, 1) // 1 is for to get the latest logo
-      .then((fileInfo) => {
-        this.setState({ latestFileInfoForLogo: fileInfo[0] });
-      })
-      .catch((error) => {
-        console.error("Error fetching latest logo file version:", error);
-      });
+  fetchLatestFileInfo = async (location) => {
+    try {
+      const fileInfo = await fetchLatestFileVersions(location, 1); // 1 is for to get the latest logo
+      this.setState({ latestFileInfoForLogo: fileInfo[0] });
+    } catch (error) {
+      console.error("Error fetching latest logo file version:", error);
+    }
   };
 
-  fetchLatestFileInfosForScreenshots = () => {
-    fetchLatestFileVersions("screenshots", 4) // Fetch latest 4 screenshots
+  fetchLatestFileInfosForScreenshots = async () => {
+    await fetchLatestFileVersions("screenshots", 4) // Fetch latest 4 screenshots
       .then((fileInfos) => {
         this.setState({ latestFilesInfosForScreenshots: fileInfos });
       })
@@ -155,7 +154,6 @@ class NavbarAdmin extends Component {
   };
 
   handleFileUpload = async (file) => {
-    //const file = fileInput.files[0];
     await uploadFile(file, "logo");
   };
 
@@ -184,7 +182,6 @@ class NavbarAdmin extends Component {
 
     try {
       const screenshot = await takeFullScreenshot();
-
       const screenshotFile = dataURLtoFile(screenshot, "screenshot.png");
       await uploadFile(screenshotFile, "screenshots");
     } catch (error) {
@@ -215,7 +212,10 @@ class NavbarAdmin extends Component {
       enlargedImageVisible,
       uploadedLogoSrc,
     } = this.state;
-
+    let imageSrc = "";
+    if (latestFileInfoForLogo.fileExtention) {
+      imageSrc = `data:${latestFileInfoForLogo.fileExtention};base64,${latestFileInfoForLogo.fileBase64}`;
+    }
     return (
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <div
@@ -227,10 +227,7 @@ class NavbarAdmin extends Component {
           {uploadedLogoSrc ? (
             <img src={uploadedLogoSrc} alt="Logo" />
           ) : latestFileInfoForLogo ? (
-            <img
-              src={`data:${latestFileInfoForLogo.fileExtension};base64,${latestFileInfoForLogo.fileBase64}`}
-              alt="Logo"
-            />
+            <img src={imageSrc} alt="Logo" />
           ) : (
             <span className="add-icon" onClick={this.handleDoubleClicked}>
               +

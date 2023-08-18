@@ -88,6 +88,7 @@ class Navbar extends Component {
           <div className="language-select">
             <select
               className="form-select"
+              name="language"
               value={selectedLanguage}
               onChange={this.handleLanguageChange}
             >
