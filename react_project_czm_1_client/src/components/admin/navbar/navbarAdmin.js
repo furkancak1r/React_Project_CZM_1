@@ -17,7 +17,7 @@ import { dataURLtoFile } from "../../../services/dataURLtoFile/dataURLtoFile";
 class NavbarAdmin extends Component {
   state = {
     navbarData: [],
-    latestFileInfoForLogo: [],
+    latestFileInfoForLogos: [],
     latestFilesInfosForScreenshots: [],
     showSidebar: false,
     enlargedImageVisible: false,
@@ -30,9 +30,7 @@ class NavbarAdmin extends Component {
   enlargedImageRef = null;
 
   componentDidMount() {
-    this.fetchAndSetNavbarData();
-    this.fetchLatestFileInfo("logo");
-    this.fetchLatestFileInfosForScreenshots();
+    this.fetchDataAndSetState();
 
     addGlobalEventListeners(this.handleClickText, this.handleKeyDown);
     addGlobalEventListeners(this.handleOutsideClick);
@@ -40,35 +38,42 @@ class NavbarAdmin extends Component {
 
   componentWillUnmount() {
     removeGlobalEventListeners(this.handleClickText, this.handleKeyDown);
-    addGlobalEventListeners(this.handleOutsideClick);
+    removeGlobalEventListeners(this.handleOutsideClick);
   }
 
-  fetchAndSetNavbarData = () => {
-    fetchNavbarData().then((data) => {
+  async fetchLatestFileInfoAndSetState(location, count, stateKey) {
+    try {
+      const fileInfo = await fetchLatestFileVersions(location, count);
+      this.setState({ [stateKey]: fileInfo }, () => {});
+    } catch (error) {
+      console.error(`${stateKey} güncellenirken hata oluştu:`, error);
+    }
+  }
+
+  fetchAndSetNavbarData = async () => {
+    await fetchNavbarData().then((data) => {
       if (data && data.length > 0) {
         this.setState({ navbarData: data });
       }
     });
   };
 
-  fetchLatestFileInfo = async (location) => {
-    try {
-      const fileInfo = await fetchLatestFileVersions(location, 1); // 1 is for to get the latest logo
-      this.setState({ latestFileInfoForLogo: fileInfo[0] });
-    } catch (error) {
-      console.error("Error fetching latest logo file version:", error);
-    }
-  };
-
-  fetchLatestFileInfosForScreenshots = async () => {
-    await fetchLatestFileVersions("screenshots", 4) // Fetch latest 4 screenshots
-      .then((fileInfos) => {
-        this.setState({ latestFilesInfosForScreenshots: fileInfos });
-      })
-      .catch((error) => {
-        console.error("Error fetching latest screenshot file versions:", error);
-      });
-  };
+  async fetchAndSetLatestFileInfo() {
+    await this.fetchLatestFileInfoAndSetState(
+      "logo",
+      1,
+      "latestFileInfoForLogos"
+    );
+    await this.fetchLatestFileInfoAndSetState(
+      "screenshots",
+      4,
+      "latestFilesInfosForScreenshots"
+    );
+  }
+  async fetchDataAndSetState() {
+    await this.fetchAndSetNavbarData();
+    await this.fetchAndSetLatestFileInfo();
+  }
 
   handleClickText = (event) => {
     if (
@@ -176,8 +181,7 @@ class NavbarAdmin extends Component {
     }
 
     updateNavbarData(data).then(() => {
-      this.fetchAndSetNavbarData();
-      this.fetchLatestFileInfo("logo");
+      this.fetchDataAndSetState();
     });
 
     try {
@@ -206,14 +210,16 @@ class NavbarAdmin extends Component {
   render() {
     const {
       navbarData,
-      latestFileInfoForLogo,
+      latestFileInfoForLogos,
       latestFilesInfosForScreenshots,
       showSidebar,
       enlargedImageVisible,
       uploadedLogoSrc,
     } = this.state;
     let imageSrc = "";
-    if (latestFileInfoForLogo.fileExtention) {
+    let latestFileInfoForLogo = latestFileInfoForLogos[0];
+
+    if (latestFileInfoForLogo && latestFileInfoForLogo.fileExtention) {
       imageSrc = `data:${latestFileInfoForLogo.fileExtention};base64,${latestFileInfoForLogo.fileBase64}`;
     }
     return (
@@ -226,7 +232,7 @@ class NavbarAdmin extends Component {
         >
           {uploadedLogoSrc ? (
             <img src={uploadedLogoSrc} alt="Logo" />
-          ) : latestFileInfoForLogo ? (
+          ) : latestFileInfoForLogos ? (
             <img src={imageSrc} alt="Logo" />
           ) : (
             <span className="add-icon" onClick={this.handleDoubleClicked}>
