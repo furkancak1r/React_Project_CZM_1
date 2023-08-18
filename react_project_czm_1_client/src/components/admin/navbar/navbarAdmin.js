@@ -3,14 +3,14 @@ import {
   fetchNavbarData,
   updateNavbarData,
 } from "../../../services/api-services/apiServices";
-import "./navbarAdmin.css";
+import "./css/navbarAdmin.css";
 import { uploadFile } from "../../../services/uploadFile/uploadFile";
 import {
   addGlobalEventListeners,
   removeGlobalEventListeners,
 } from "../../../services/eventHandlers/eventHandlers.js";
 import { fetchLatestFileVersions } from "../../../services/api-services/apiServices";
-import "./sideBar.css";
+import "./css/sideBar.css";
 import { takeFullScreenshot } from "../../../services/screenshot/screenshot";
 import { dataURLtoFile } from "../../../services/dataURLtoFile/dataURLtoFile";
 
