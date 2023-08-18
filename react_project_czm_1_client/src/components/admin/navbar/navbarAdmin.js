@@ -21,6 +21,8 @@ class NavbarAdmin extends Component {
     latestFilesInfosForScreenshots: [],
     showSidebar: false,
     enlargedImageVisible: false,
+    uploadedLogoFile: null,
+    uploadedLogoSrc: null,
   };
 
   editableRef = null;
@@ -131,24 +133,34 @@ class NavbarAdmin extends Component {
     newNavbarData[index].editable = true;
     this.setState({ navbarData: newNavbarData });
   };
-
   handleDoubleClicked = () => {
     const fileInput = document.createElement("input");
     fileInput.type = "file";
     fileInput.accept = "image/*";
-    fileInput.addEventListener("change", () =>
-      this.handleFileUpload(fileInput)
-    );
     fileInput.click();
+    fileInput.addEventListener("change", () => {
+      const selectedFile = fileInput.files[0];
+      if (selectedFile) {
+        const fileReader = new FileReader();
+        fileReader.onload = () => {
+          const uploadedLogoSrc = fileReader.result;
+          this.setState({
+            uploadedLogoFile: selectedFile,
+            uploadedLogoSrc: uploadedLogoSrc,
+          });
+        };
+        fileReader.readAsDataURL(selectedFile);
+      }
+    });
   };
 
-  handleFileUpload = async (fileInput) => {
-    const file = fileInput.files[0];
+  handleFileUpload = async (file) => {
+    //const file = fileInput.files[0];
     await uploadFile(file, "logo");
   };
 
   handleSave = async () => {
-    const { navbarData } = this.state;
+    const { navbarData, uploadedLogoFile } = this.state;
 
     const filteredData = navbarData.filter((item) => item.title.trim() !== "");
 
@@ -161,11 +173,8 @@ class NavbarAdmin extends Component {
       columns: ["title"],
       values: filteredData.map((item) => item.title),
     };
-
-    const fileInput = document.getElementById("fileInput");
-    console.log("fileInput:", fileInput);
-    if (fileInput && fileInput.files.length > 0) {
-      await this.handleFileUpload(fileInput.files[0]);
+    if (uploadedLogoFile) {
+      await this.handleFileUpload(uploadedLogoFile);
     }
 
     updateNavbarData(data).then(() => {
@@ -183,14 +192,12 @@ class NavbarAdmin extends Component {
     }
   };
 
-  showBubble() {
+  toggleBubble() {
     const bubble = document.getElementById("bubble");
-    bubble.style.visibility = "visible";
-  }
+    const currentVisibility = bubble.style.visibility;
 
-  hideBubble() {
-    const bubble = document.getElementById("bubble");
-    bubble.style.visibility = "hidden";
+    bubble.style.visibility =
+      currentVisibility === "visible" ? "hidden" : "visible";
   }
 
   toggleSidebar = () => {
@@ -206,30 +213,39 @@ class NavbarAdmin extends Component {
       latestFilesInfosForScreenshots,
       showSidebar,
       enlargedImageVisible,
+      uploadedLogoSrc,
     } = this.state;
 
     return (
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <div
           className="navbar-brand"
-          onMouseEnter={this.showBubble}
-          onMouseLeave={this.hideBubble}
+          onMouseEnter={this.toggleBubble}
+          onMouseLeave={this.toggleBubble}
           onDoubleClick={this.handleDoubleClicked}
         >
-          {latestFileInfoForLogo && (
+          {uploadedLogoSrc ? (
+            <img src={uploadedLogoSrc} alt="Logo" />
+          ) : latestFileInfoForLogo ? (
             <img
-              src={`data:${latestFileInfoForLogo.fileExtention};base64,${latestFileInfoForLogo.fileBase64}`}
+              src={`data:${latestFileInfoForLogo.fileExtension};base64,${latestFileInfoForLogo.fileBase64}`}
               alt="Logo"
             />
+          ) : (
+            <span className="add-icon" onClick={this.handleDoubleClicked}>
+              +
+            </span>
           )}
+
           <div id="bubble" className="bubble">
             Max Genişlik: "110px", Max Yükseklik: "80px",
           </div>
         </div>
         <div className="container">
           <div
-            className={`belowContainer ${navbarData.length <= 6 ? "showPadding wide" : "showPadding"
-              }`}
+            className={`belowContainer ${
+              navbarData.length <= 6 ? "showPadding wide" : "showPadding"
+            }`}
           >
             {navbarData.map((item, index) => (
               <div
@@ -240,6 +256,7 @@ class NavbarAdmin extends Component {
                 {item.editable ? (
                   <input
                     type="text"
+                    name="text"
                     value={item.title}
                     onChange={(event) => this.handleTitleChange(index, event)}
                     ref={(ref) => (this.inputRef = ref)}
@@ -280,11 +297,12 @@ class NavbarAdmin extends Component {
             {latestFilesInfosForScreenshots.map((fileInfo, index) => (
               <li
                 key={index}
-                className={`img-container ${enlargedImageVisible ? "enlarged" : ""
-                  }`
+                className={`img-container ${
+                  enlargedImageVisible ? "enlarged" : ""
+                }`}
+                onClick={
+                  enlargedImageVisible ? this.handleScreenshotClick : null
                 }
-                onClick={enlargedImageVisible ? this.handleScreenshotClick : null}
-
               >
                 <div className="image-overlay">
                   <i className="bi bi-arrow-90deg-left"></i>
@@ -302,7 +320,6 @@ class NavbarAdmin extends Component {
             ))}
           </div>
         </div>
-
       </nav>
     );
   }

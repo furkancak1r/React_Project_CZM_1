@@ -5,8 +5,7 @@ const urls = [
   `${localhost}/sqldata/insertrow`,
   `${localhost}/api/adminLogin`,
   `${localhost}/sqldata/uploadFile`,
-  `${localhost}/sqldata/getLatestFileVersionsByLocation`
-
+  `${localhost}/sqldata/getLatestFileVersionsByLocation`,
 ];
 
 export default urls;

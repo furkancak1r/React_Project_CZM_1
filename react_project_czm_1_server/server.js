@@ -134,24 +134,31 @@ app.post("/sqldata/getLatestFileVersionsByLocation", async (req, res) => {
   const { location, count } = req.body;
 
   try {
-    const latestFileVersion = await mysqlFunctions.selectMaxFileVersion(location);
+    const latestFileVersion = await mysqlFunctions.selectMaxFileVersion(
+      location
+    );
     const fileVersions = [];
 
-    for (let i = latestFileVersion; i > Math.max(latestFileVersion - count, 0); i--) {
-      const fileInfo = await mysqlFunctions.getFileByVersionAndLocation(location, i);
+    for (
+      let i = latestFileVersion;
+      i > Math.max(latestFileVersion - count, 0);
+      i--
+    ) {
+      const fileInfo = await mysqlFunctions.getFileByVersionAndLocation(
+        location,
+        i
+      );
       if (fileInfo) {
         fileVersions.push(fileInfo);
       }
     }
 
     res.json(fileVersions);
-
   } catch (error) {
     console.error("Veri çekilirken bir hata oluştu:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
