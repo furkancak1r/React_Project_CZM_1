@@ -1,19 +1,14 @@
 import React, { Component } from "react";
-import {
-  fetchNavbarData,
-  updateNavbarData,
-} from "../../../services/api-services/apiServices";
+import { fetchNavbarData } from "../../../services/api-services/apiServices";
 import "./css/navbarAdmin.css";
-import { uploadFile } from "../../../services/uploadFile/uploadFile";
 import {
   addGlobalEventListeners,
   removeGlobalEventListeners,
 } from "../../../services/eventHandlers/eventHandlers.js";
 import { fetchLatestFileVersions } from "../../../services/api-services/apiServices";
 import "./css/sideBar.css";
-import { takeFullScreenshot } from "../../../services/screenshot/screenshot";
-import { dataURLtoFile } from "../../../services/dataURLtoFile/dataURLtoFile";
 
+import { handleSaveAdminFn } from "../../../services/handleSaveAdmin/handleSaveAdmin";
 class NavbarAdmin extends Component {
   state = {
     navbarData: [],
@@ -24,6 +19,10 @@ class NavbarAdmin extends Component {
     uploadedLogoFile: null,
     uploadedLogoSrc: null,
   };
+  constructor(props) {
+    super(props);
+    this.handleSave = this.handleSave.bind(this);
+  }
 
   editableRef = null;
   inputRef = null;
@@ -158,39 +157,13 @@ class NavbarAdmin extends Component {
     });
   };
 
-  handleFileUpload = async (file) => {
-    await uploadFile(file, "logo");
-  };
-
   handleSave = async () => {
     const { navbarData, uploadedLogoFile } = this.state;
-
-    const filteredData = navbarData.filter((item) => item.title.trim() !== "");
-
-    if (filteredData.length === 0) {
-      return;
-    }
-
-    const data = {
-      table_names: ["navbar"],
-      columns: ["title"],
-      values: filteredData.map((item) => item.title),
-    };
-    if (uploadedLogoFile) {
-      await this.handleFileUpload(uploadedLogoFile);
-    }
-
-    updateNavbarData(data).then(() => {
-      this.fetchDataAndSetState();
-    });
-
-    try {
-      const screenshot = await takeFullScreenshot();
-      const screenshotFile = dataURLtoFile(screenshot, "screenshot.png");
-      await uploadFile(screenshotFile, "screenshots");
-    } catch (error) {
-      console.error("Ekran görüntüsü alınırken hata oluştu:", error);
-    }
+    await handleSaveAdminFn(
+      navbarData,
+      uploadedLogoFile,
+      this.fetchDataAndSetState.bind(this)
+    );
   };
 
   toggleBubble() {
