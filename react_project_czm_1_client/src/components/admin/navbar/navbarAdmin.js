@@ -1,14 +1,14 @@
 import React, { Component } from "react";
 import { fetchNavbarData } from "../../../services/api-services/apiServices";
-import "./css/navbarAdmin.css";
+import "./navbarAdmin.css";
 import {
   addGlobalEventListeners,
   removeGlobalEventListeners,
 } from "../../../services/eventHandlers/eventHandlers.js";
 import { fetchLatestFileVersions } from "../../../services/api-services/apiServices";
-import "./css/sideBar.css";
-
+import "../../admin/sidebar/sidebar.css";
 import { handleSaveAdminFn } from "../../../services/handleSaveAdmin/handleSaveAdmin";
+import Sidebar from "../sidebar/sidebar";
 class NavbarAdmin extends Component {
   state = {
     navbarData: [],
@@ -18,10 +18,14 @@ class NavbarAdmin extends Component {
     enlargedImageVisible: false,
     uploadedLogoFile: null,
     uploadedLogoSrc: null,
+    sidebarRef: null,
+
   };
   constructor(props) {
     super(props);
     this.handleSave = this.handleSave.bind(this);
+    this.sidebarRef = null;
+
   }
 
   editableRef = null;
@@ -43,7 +47,7 @@ class NavbarAdmin extends Component {
   async fetchLatestFileInfoAndSetState(location, count, stateKey) {
     try {
       const fileInfo = await fetchLatestFileVersions(location, count);
-      this.setState({ [stateKey]: fileInfo }, () => {});
+      this.setState({ [stateKey]: fileInfo }, () => { });
     } catch (error) {
       console.error(`${stateKey} güncellenirken hata oluştu:`, error);
     }
@@ -179,15 +183,19 @@ class NavbarAdmin extends Component {
       showSidebar: !prevState.showSidebar,
     }));
   };
+  updateSidebarRef = (newRef) => {
+    this.sidebarRef = newRef;
+  };
 
   render() {
     const {
       navbarData,
       latestFileInfoForLogos,
-      latestFilesInfosForScreenshots,
       showSidebar,
+      latestFilesInfosForScreenshots,
       enlargedImageVisible,
-      uploadedLogoSrc,
+      uploadedLogoSrc
+
     } = this.state;
     let imageSrc = "";
     let latestFileInfoForLogo = latestFileInfoForLogos[0];
@@ -219,9 +227,8 @@ class NavbarAdmin extends Component {
         </div>
         <div className="container">
           <div
-            className={`belowContainer ${
-              navbarData.length <= 6 ? "showPadding wide" : "showPadding"
-            }`}
+            className={`belowContainer ${navbarData.length <= 6 ? "showPadding wide" : "showPadding"
+              }`}
           >
             {navbarData.map((item, index) => (
               <div
@@ -264,38 +271,15 @@ class NavbarAdmin extends Component {
           <i className="bi bi-clock-history" onClick={this.toggleSidebar}></i>
         </div>
 
-        <div
-          className={`sidebar ${showSidebar ? "active" : ""}`}
-          ref={(ref) => (this.sidebarRef = ref)}
-        >
-          <div className="sidebarHeader">Son Kaydedilenler</div>
-          <div className="sidebarImageAll">
-            {latestFilesInfosForScreenshots.map((fileInfo, index) => (
-              <li
-                key={index}
-                className={`img-container ${
-                  enlargedImageVisible ? "enlarged" : ""
-                }`}
-                onClick={
-                  enlargedImageVisible ? this.handleScreenshotClick : null
-                }
-              >
-                <div className="image-overlay">
-                  <i className="bi bi-arrow-90deg-left"></i>
-                  <i
-                    className="bi bi-arrows-fullscreen"
-                    onClick={this.handleScreenshotClick}
-                  ></i>
-                </div>
-                <img
-                  src={`data:${fileInfo.fileExtention};base64,${fileInfo.fileBase64}`}
-                  alt={`Screenshot ${index + 1}`}
-                  ref={(ref) => (this.enlargedImageRef = ref)}
-                />
-              </li>
-            ))}
-          </div>
-        </div>
+        <Sidebar
+          showSidebar={showSidebar}
+          latestFilesInfosForScreenshots={latestFilesInfosForScreenshots}
+          enlargedImageVisible={enlargedImageVisible}
+          handleScreenshotClick={this.handleScreenshotClick}
+          updateSidebarRef={this.updateSidebarRef}
+        />
+
+
       </nav>
     );
   }
