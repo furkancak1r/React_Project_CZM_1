@@ -20,6 +20,7 @@ class NavbarAdmin extends Component {
     uploadedLogoSrc: null,
     sidebarRef: null,
     changesPending: false,
+    savedSuccessMessage: false,
   };
   constructor(props) {
     super(props);
@@ -179,11 +180,21 @@ class NavbarAdmin extends Component {
 
   handleSave = async () => {
     const { navbarData, uploadedLogoFile } = this.state;
-    await handleSaveAdminFn(
-      navbarData,
-      uploadedLogoFile,
-      this.fetchDataAndSetState.bind(this)
-    );
+    try {
+      await handleSaveAdminFn(
+        navbarData,
+        uploadedLogoFile,
+        this.fetchDataAndSetState.bind(this)
+      );
+      this.setState({ changesPending: false });
+      this.setState({ savedSuccessMessage: true });
+      setTimeout(() => {
+        this.setState({ savedSuccessMessage: false });
+      }, 3000); // 3000 milliseconds = 3 seconds
+    } catch (error) {
+      console.error("Hata:", error);
+      this.setState({ savedSuccessMessage: false });
+    }
   };
 
   toggleBubble() {
@@ -212,6 +223,7 @@ class NavbarAdmin extends Component {
       enlargedImageVisible,
       uploadedLogoSrc,
       changesPending,
+      savedSuccessMessage,
     } = this.state;
     let imageSrc = "";
     let latestFileInfoForLogo = latestFileInfoForLogos[0];
@@ -221,11 +233,19 @@ class NavbarAdmin extends Component {
     }
     return (
       <div>
-        {changesPending && (
-          <div className="save-instruction">
-            Değişiklikleri kaydetmek için lütfen kaydet butonuna tıklayın
-          </div>
-        )}
+        <div
+          className={`save-instruction ${changesPending ? "info" : ""} ${
+            savedSuccessMessage ? "success" : ""
+          }`}
+        >
+          {changesPending && (
+            <div>
+              Değişiklikleri kaydetmek için lütfen kaydet butonuna tıklayın
+            </div>
+          )}
+          {savedSuccessMessage && <div>Değişiklikler başarıyla kaydedildi</div>}
+        </div>
+
         <nav className="navbar navbar-expand-lg navbar-light bg-light">
           <div
             className="navbar-brand"
