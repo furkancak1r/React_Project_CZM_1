@@ -98,3 +98,11 @@
 .classHandleSave i:hover {
   color: #007bff;
 }
+.save-instruction {
+  background-color: red;
+  color: white;
+  height: 20px;
+  text-align: center;
+  line-height: 20px;
+}
+

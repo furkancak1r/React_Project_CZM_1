@@ -19,14 +19,14 @@ class NavbarAdmin extends Component {
     uploadedLogoFile: null,
     uploadedLogoSrc: null,
     sidebarRef: null,
-
+    changesPending: false,
   };
   constructor(props) {
     super(props);
     this.handleSave = this.handleSave.bind(this);
     this.sidebarRef = null;
-
   }
+  testNavbarInfo = null;
 
   editableRef = null;
   inputRef = null;
@@ -47,7 +47,7 @@ class NavbarAdmin extends Component {
   async fetchLatestFileInfoAndSetState(location, count, stateKey) {
     try {
       const fileInfo = await fetchLatestFileVersions(location, count);
-      this.setState({ [stateKey]: fileInfo }, () => { });
+      this.setState({ [stateKey]: fileInfo }, () => {});
     } catch (error) {
       console.error(`${stateKey} güncellenirken hata oluştu:`, error);
     }
@@ -117,12 +117,23 @@ class NavbarAdmin extends Component {
     }));
     this.setState({ navbarData: updatedNavbarData });
   };
-
   handleTitleChange = (index, event) => {
     const { navbarData } = this.state;
+
+    if (this.testNavbarInfo === null) {
+      this.testNavbarInfo = navbarData.map((item) => ({ ...item }));
+    }
+
     const newNavbarData = [...navbarData];
+    const originalTitle = this.testNavbarInfo[index].title;
     newNavbarData[index].title = event.target.value;
-    this.setState({ navbarData: newNavbarData });
+
+    const isTextChanged = originalTitle !== newNavbarData[index].title;
+
+    this.setState({
+      navbarData: newNavbarData,
+      changesPending: isTextChanged,
+    });
   };
 
   handleAddInput = () => {
@@ -130,16 +141,20 @@ class NavbarAdmin extends Component {
     if (navbarData.length < 10) {
       const newNavbarData = [...navbarData];
       newNavbarData.push({ title: "", editable: true });
+      this.setState({ navbarData: newNavbarData, changesPending: true });
+    }
+  };
+  handleDoubleClickText = (index) => {
+    const { navbarData } = this.state;
+    const newItem = { ...navbarData[index] };
+
+    if (!newItem.editable) {
+      const newNavbarData = [...navbarData];
+      newNavbarData[index].editable = true;
       this.setState({ navbarData: newNavbarData });
     }
   };
 
-  handleDoubleClickText = (index) => {
-    const { navbarData } = this.state;
-    const newNavbarData = [...navbarData];
-    newNavbarData[index].editable = true;
-    this.setState({ navbarData: newNavbarData });
-  };
   handleDoubleClicked = () => {
     const fileInput = document.createElement("input");
     fileInput.type = "file";
@@ -154,6 +169,7 @@ class NavbarAdmin extends Component {
           this.setState({
             uploadedLogoFile: selectedFile,
             uploadedLogoSrc: uploadedLogoSrc,
+            changesPending: true,
           });
         };
         fileReader.readAsDataURL(selectedFile);
@@ -194,8 +210,8 @@ class NavbarAdmin extends Component {
       showSidebar,
       latestFilesInfosForScreenshots,
       enlargedImageVisible,
-      uploadedLogoSrc
-
+      uploadedLogoSrc,
+      changesPending,
     } = this.state;
     let imageSrc = "";
     let latestFileInfoForLogo = latestFileInfoForLogos[0];
@@ -204,83 +220,89 @@ class NavbarAdmin extends Component {
       imageSrc = `data:${latestFileInfoForLogo.fileExtention};base64,${latestFileInfoForLogo.fileBase64}`;
     }
     return (
-      <nav className="navbar navbar-expand-lg navbar-light bg-light">
-        <div
-          className="navbar-brand"
-          onMouseEnter={this.toggleBubble}
-          onMouseLeave={this.toggleBubble}
-          onDoubleClick={this.handleDoubleClicked}
-        >
-          {uploadedLogoSrc ? (
-            <img src={uploadedLogoSrc} alt="Logo" />
-          ) : latestFileInfoForLogos ? (
-            <img src={imageSrc} alt="Logo" />
-          ) : (
-            <span className="add-icon" onClick={this.handleDoubleClicked}>
-              +
-            </span>
-          )}
-
-          <div id="bubble" className="bubble">
-            Max Genişlik: "110px", Max Yükseklik: "80px",
+      <div>
+        {changesPending && (
+          <div className="save-instruction">
+            Değişiklikleri kaydetmek için lütfen kaydet butonuna tıklayın
           </div>
-        </div>
-        <div className="container">
+        )}
+        <nav className="navbar navbar-expand-lg navbar-light bg-light">
           <div
-            className={`belowContainer ${navbarData.length <= 6 ? "showPadding wide" : "showPadding"
-              }`}
+            className="navbar-brand"
+            onMouseEnter={this.toggleBubble}
+            onMouseLeave={this.toggleBubble}
+            onDoubleClick={this.handleDoubleClicked}
           >
-            {navbarData.map((item, index) => (
-              <div
-                className="navbarDataMap"
-                key={index}
-                ref={(ref) => (this.editableRef = ref)}
-              >
-                {item.editable ? (
-                  <input
-                    type="text"
-                    name="text"
-                    value={item.title}
-                    onChange={(event) => this.handleTitleChange(index, event)}
-                    ref={(ref) => (this.inputRef = ref)}
-                  />
-                ) : (
-                  <span
-                    className="item-title"
-                    onDoubleClick={() => this.handleDoubleClickText(index)}
-                  >
-                    {item.title}
-                  </span>
-                )}
-                {index === navbarData.length - 1 && (
-                  <span className="add-icon" onClick={this.handleAddInput}>
-                    +
-                  </span>
-                )}
-              </div>
-            ))}
-            {navbarData.length === 0 && (
-              <span className="add-icon" onClick={this.handleAddInput}>
+            {uploadedLogoSrc ? (
+              <img src={uploadedLogoSrc} alt="Logo" />
+            ) : latestFileInfoForLogo ? (
+              <img src={imageSrc} alt="Logo" />
+            ) : (
+              <span className="add-icon" onClick={this.handleDoubleClicked}>
                 +
               </span>
             )}
+
+            <div id="bubble" className="bubble">
+              Max Genişlik: "110px", Max Yükseklik: "80px",
+            </div>
           </div>
-        </div>
-        <div className="classHandleSave">
-          <i className="bi bi-save" onClick={this.handleSave}></i>
-          <i className="bi bi-clock-history" onClick={this.toggleSidebar}></i>
-        </div>
+          <div className="container">
+            <div
+              className={`belowContainer ${
+                navbarData.length <= 6 ? "showPadding wide" : "showPadding"
+              }`}
+            >
+              {navbarData.map((item, index) => (
+                <div
+                  className="navbarDataMap"
+                  key={index}
+                  ref={(ref) => (this.editableRef = ref)}
+                >
+                  {item.editable ? (
+                    <input
+                      type="text"
+                      name="text"
+                      value={item.title}
+                      onChange={(event) => this.handleTitleChange(index, event)}
+                      ref={(ref) => (this.inputRef = ref)}
+                    />
+                  ) : (
+                    <span
+                      className="item-title"
+                      onDoubleClick={() => this.handleDoubleClickText(index)}
+                    >
+                      {item.title}
+                    </span>
+                  )}
+                  {index === navbarData.length - 1 && (
+                    <span className="add-icon" onClick={this.handleAddInput}>
+                      +
+                    </span>
+                  )}
+                </div>
+              ))}
+              {navbarData.length === 0 && (
+                <span className="add-icon" onClick={this.handleAddInput}>
+                  +
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="classHandleSave">
+            <i className="bi bi-save" onClick={this.handleSave}></i>
+            <i className="bi bi-clock-history" onClick={this.toggleSidebar}></i>
+          </div>
 
-        <Sidebar
-          showSidebar={showSidebar}
-          latestFilesInfosForScreenshots={latestFilesInfosForScreenshots}
-          enlargedImageVisible={enlargedImageVisible}
-          handleScreenshotClick={this.handleScreenshotClick}
-          updateSidebarRef={this.updateSidebarRef}
-        />
-
-
-      </nav>
+          <Sidebar
+            showSidebar={showSidebar}
+            latestFilesInfosForScreenshots={latestFilesInfosForScreenshots}
+            enlargedImageVisible={enlargedImageVisible}
+            handleScreenshotClick={this.handleScreenshotClick}
+            updateSidebarRef={this.updateSidebarRef}
+          />
+        </nav>
+      </div>
     );
   }
 }

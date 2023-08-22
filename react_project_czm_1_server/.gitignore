@@ -1,2 +1,4 @@
 # .gitignore dosyası
-config.js
+/config.js
+# dependencies
+/node_modules
