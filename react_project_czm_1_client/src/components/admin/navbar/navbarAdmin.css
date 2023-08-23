@@ -80,7 +80,7 @@
   padding-left: 20%;
 }
 
-.classHandleSave {
+.icons {
   display: flex;
   align-items: center;
   margin-left: auto;
@@ -88,17 +88,14 @@
   transition: color 0.3s ease-in-out;
 }
 
-.classHandleSave i {
+.icons i {
   font-size: 22px;
   margin-right: 10px;
   cursor: pointer;
   transition: color 0.3s ease-in-out;
 }
 
-.bi-save:hover {
-  color: #007bff;
-}
-.bi-clock-history:hover {
+.bi:hover {
   color: #007bff;
 }
 
@@ -130,4 +127,10 @@
 .info {
   background-color: #ff007b;
   animation: slideDown 0.5s ease-out;
+}
+.colorPalette {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 2;
 }

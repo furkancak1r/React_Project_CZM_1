@@ -22,11 +22,6 @@ class Sidebar extends Component {
   render() {
     const { showSidebar, latestFilesInfosForScreenshots } = this.props;
     const { enlargedImages } = this.state;
-
-    console.log(
-      ":latestFilesInfosForScreenshots",
-      latestFilesInfosForScreenshots
-    );
     return (
       <div
         className={`sidebar ${showSidebar ? "active" : ""}`}

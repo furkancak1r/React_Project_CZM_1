@@ -9,6 +9,7 @@ import { fetchLatestFileVersions } from "../../../services/api-services/apiServi
 import "../../admin/sidebar/sidebar.css";
 import { handleSaveAdminFn } from "../../../services/handleSaveAdmin/handleSaveAdmin";
 import Sidebar from "../sidebar/sidebar";
+import ColorPalette from "../colorPalette/colorPalette";
 class NavbarAdmin extends Component {
   state = {
     navbarData: [],
@@ -20,13 +21,16 @@ class NavbarAdmin extends Component {
     sidebarRef: null,
     changesPending: false,
     savedSuccessMessage: false,
+    showColorPalette: false,
+    background: { r: 255, g: 255, b: 255, a: 1 },
   };
   constructor(props) {
     super(props);
     this.handleSave = this.handleSave.bind(this);
-    this.sidebarRef = null;
+
+    this.handleChangeComplete = this.handleChangeComplete.bind(this);
+
   }
-  testNavbarInfo = null;
 
   editableRef = null;
   inputRef = null;
@@ -47,7 +51,7 @@ class NavbarAdmin extends Component {
   async fetchLatestFileInfoAndSetState(location, count, stateKey) {
     try {
       const fileInfo = await fetchLatestFileVersions(location, count);
-      this.setState({ [stateKey]: fileInfo }, () => {});
+      this.setState({ [stateKey]: fileInfo }, () => { });
     } catch (error) {
       console.error(`${stateKey} güncellenirken hata oluştu:`, error);
     }
@@ -95,6 +99,12 @@ class NavbarAdmin extends Component {
       !this.sidebarRef.contains(event.target)
     ) {
       this.setState({ showSidebar: false });
+    };
+    const colorPalette = document.querySelector('.colorPalette');
+    const isClickInsidePalette = colorPalette.contains(event.target);
+
+    if (this.state.showColorPalette && !isClickInsidePalette) {
+      this.setState({ showColorPalette: false });
     }
   };
 
@@ -207,6 +217,15 @@ class NavbarAdmin extends Component {
   };
   updateSidebarRef = (newRef) => {
     this.sidebarRef = newRef;
+
+  };
+
+  handlePaletteClick = () => {
+    this.setState({ showColorPalette: true });
+  };
+
+  handleChangeComplete = (color) => {
+    this.setState({ background: color.rgb });
   };
 
   render() {
@@ -218,19 +237,20 @@ class NavbarAdmin extends Component {
       uploadedLogoSrc,
       changesPending,
       savedSuccessMessage,
+      showColorPalette,
+      background,
     } = this.state;
     let imageSrc = "";
     let latestFileInfoForLogo = latestFileInfoForLogos[0];
-
     if (latestFileInfoForLogo && latestFileInfoForLogo.fileExtention) {
       imageSrc = `data:${latestFileInfoForLogo.fileExtention};base64,${latestFileInfoForLogo.fileBase64}`;
     }
+
     return (
       <div>
         <div
-          className={`save-instruction ${changesPending ? "info" : ""} ${
-            savedSuccessMessage ? "success" : ""
-          }`}
+          className={`save-instruction ${changesPending ? "info" : ""} ${savedSuccessMessage ? "success" : ""
+            }`}
         >
           {changesPending && (
             <div>
@@ -263,9 +283,8 @@ class NavbarAdmin extends Component {
           </div>
           <div className="container">
             <div
-              className={`belowContainer ${
-                navbarData.length <= 6 ? "showPadding wide" : "showPadding"
-              }`}
+              className={`belowContainer ${navbarData.length <= 6 ? "showPadding wide" : "showPadding"
+                }`}
             >
               {navbarData.map((item, index) => (
                 <div
@@ -303,19 +322,27 @@ class NavbarAdmin extends Component {
               )}
             </div>
           </div>
-          <div className="classHandleSave">
+          <div className="icons">
+            <i className="bi bi-palette" onClick={this.handlePaletteClick}></i>
             <i
               className={`bi bi-save ${changesPending ? "" : "inactive"}`}
               onClick={changesPending ? this.handleSave : null}
             ></i>
             <i className="bi bi-clock-history" onClick={this.toggleSidebar}></i>
           </div>
-
           <Sidebar
             showSidebar={showSidebar}
             latestFilesInfosForScreenshots={latestFilesInfosForScreenshots}
             updateSidebarRef={this.updateSidebarRef}
-          />
+          />{" "}
+          <div className="colorPalette">
+            {showColorPalette && (
+              <ColorPalette
+                background={background}
+                handleChangeComplete={this.handleChangeComplete}
+              />
+            )}
+          </div>
         </nav>
       </div>
     );
