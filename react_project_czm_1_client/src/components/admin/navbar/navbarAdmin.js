@@ -15,7 +15,6 @@ class NavbarAdmin extends Component {
     latestFileInfoForLogos: [],
     latestFilesInfosForScreenshots: [],
     showSidebar: false,
-    enlargedImageVisible: false,
     uploadedLogoFile: null,
     uploadedLogoSrc: null,
     sidebarRef: null,
@@ -99,11 +98,7 @@ class NavbarAdmin extends Component {
     }
   };
 
-  handleScreenshotClick = () => {
-    this.setState((prevState) => ({
-      enlargedImageVisible: !prevState.enlargedImageVisible,
-    }));
-  };
+
   handleKeyDown = (event) => {
     if (event.key === "Enter") {
       this.closeEditable();
@@ -221,7 +216,6 @@ class NavbarAdmin extends Component {
       latestFileInfoForLogos,
       showSidebar,
       latestFilesInfosForScreenshots,
-      enlargedImageVisible,
       uploadedLogoSrc,
       changesPending,
       savedSuccessMessage,
@@ -318,8 +312,6 @@ class NavbarAdmin extends Component {
           <Sidebar
             showSidebar={showSidebar}
             latestFilesInfosForScreenshots={latestFilesInfosForScreenshots}
-            enlargedImageVisible={enlargedImageVisible}
-            handleScreenshotClick={this.handleScreenshotClick}
             updateSidebarRef={this.updateSidebarRef}
           />
         </nav>
