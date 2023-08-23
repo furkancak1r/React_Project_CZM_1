@@ -181,12 +181,12 @@ class NavbarAdmin extends Component {
   handleSave = async () => {
     const { navbarData, uploadedLogoFile } = this.state;
     try {
+      this.setState({ changesPending: false });
       await handleSaveAdminFn(
         navbarData,
         uploadedLogoFile,
         this.fetchDataAndSetState.bind(this)
       );
-      this.setState({ changesPending: false });
       this.setState({ savedSuccessMessage: true });
       setTimeout(() => {
         this.setState({ savedSuccessMessage: false });
@@ -197,12 +197,13 @@ class NavbarAdmin extends Component {
     }
   };
 
-  toggleBubble() {
+  bubbleAdd() {
     const bubble = document.getElementById("bubble");
-    const currentVisibility = bubble.style.visibility;
-
-    bubble.style.visibility =
-      currentVisibility === "visible" ? "hidden" : "visible";
+    bubble.style.visibility = "visible"; 
+  }
+  bubbleRemove() {
+    const bubble = document.getElementById("bubble");
+    bubble.style.visibility = "hidden"; 
   }
 
   toggleSidebar = () => {
@@ -249,8 +250,8 @@ class NavbarAdmin extends Component {
         <nav className="navbar navbar-expand-lg navbar-light bg-light">
           <div
             className="navbar-brand"
-            onMouseEnter={this.toggleBubble}
-            onMouseLeave={this.toggleBubble}
+            onMouseEnter={this.bubbleAdd}
+            onMouseLeave={this.bubbleRemove}
             onDoubleClick={this.handleDoubleClicked}
           >
             {uploadedLogoSrc ? (

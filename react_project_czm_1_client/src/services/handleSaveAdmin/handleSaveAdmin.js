@@ -20,7 +20,6 @@ export const handleSaveAdminFn = async (
         values: filteredData.map((item) => item.title),
       };
       await updateNavbarData(data);
-      await fetchDataAndSetState();
     }
 
     if (uploadedLogoFile) {
@@ -30,6 +29,7 @@ export const handleSaveAdminFn = async (
     const screenshot = await takeFullScreenshot();
     const screenshotFile = dataURLtoFile(screenshot, "screenshot.png");
     await uploadFile(screenshotFile, "screenshots");
+    await fetchDataAndSetState();
   } catch (error) {
     return "Hata";
   }
