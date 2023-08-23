@@ -98,7 +98,6 @@ class NavbarAdmin extends Component {
     }
   };
 
-
   handleKeyDown = (event) => {
     if (event.key === "Enter") {
       this.closeEditable();
@@ -194,11 +193,11 @@ class NavbarAdmin extends Component {
 
   bubbleAdd() {
     const bubble = document.getElementById("bubble");
-    bubble.style.visibility = "visible"; 
+    bubble.style.visibility = "visible";
   }
   bubbleRemove() {
     const bubble = document.getElementById("bubble");
-    bubble.style.visibility = "hidden"; 
+    bubble.style.visibility = "hidden";
   }
 
   toggleSidebar = () => {
@@ -259,7 +258,7 @@ class NavbarAdmin extends Component {
             )}
 
             <div id="bubble" className="bubble">
-              Max Genişlik: "110px", Max Yükseklik: "80px",
+              Max Genişlik: "110px", Max Yükseklik: "80px"
             </div>
           </div>
           <div className="container">
@@ -305,7 +304,10 @@ class NavbarAdmin extends Component {
             </div>
           </div>
           <div className="classHandleSave">
-            <i className="bi bi-save" onClick={this.handleSave}></i>
+            <i
+              className={`bi bi-save ${changesPending ? "" : "inactive"}`}
+              onClick={changesPending ? this.handleSave : null}
+            ></i>
             <i className="bi bi-clock-history" onClick={this.toggleSidebar}></i>
           </div>
 

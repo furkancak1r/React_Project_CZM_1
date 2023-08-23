@@ -95,8 +95,16 @@
   transition: color 0.3s ease-in-out;
 }
 
-.classHandleSave i:hover {
+.bi-save:hover {
   color: #007bff;
+}
+.bi-clock-history:hover {
+  color: #007bff;
+}
+
+.bi-save.inactive {
+  color: lightgray; 
+  cursor: default; 
 }
 
 @keyframes slideDown {
