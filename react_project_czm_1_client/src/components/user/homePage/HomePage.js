@@ -9,10 +9,8 @@ function HomePage() {
     const isLoggedIn = localStorage.getItem("isLoggedIn");
 
     if (isLoggedIn === "false") {
-      // /admin'e yönlendir
       navigate("/admin");
     } else {
-      // /admin/homepage'e yönlendir
       navigate("/admin/homepage");
     }
   };
@@ -20,10 +18,7 @@ function HomePage() {
   return (
     <div>
       <Navbar />
-      <h5 onClick={handleClick}>
-        Go to Admin Page
-      </h5>
-
+      <h5 onClick={handleClick}>Go to Admin Page</h5>
     </div>
   );
 }

@@ -25,8 +25,8 @@ class NavbarAdmin extends Component {
     background: { r: 255, g: 255, b: 255, a: 1 },
     navbarColorSelected: true,
     hoverColorSelected: false,
-    backgroundColorForNavbar: { r: 255, g: 255, b: 255, a: 1 },
-    colorForHover: { r: 255, g: 255, b: 255, a: 1 },
+    backgroundColorForNavbar: { r: 248, g: 249, b: 250, a: 1 },
+    colorForHover: { r: 0, g: 123, b: 255, a: 1 },
   };
   constructor(props) {
     super(props);
@@ -245,19 +245,33 @@ class NavbarAdmin extends Component {
   };
 
   handleColorSelected = (selected) => {
+    const {backgroundColorForNavbar,colorForHover}=this.state;
     if (selected === "navbar") {
       this.setState({
         navbarColorSelected: true,
         hoverColorSelected: false,
+        background:backgroundColorForNavbar,
+
       });
     } else if (selected === "hover") {
       this.setState({
         navbarColorSelected: false,
         hoverColorSelected: true,
+        background:colorForHover,
+
       });
     }
   };
+  hoverAdd = (e) => {
+    const { colorForHover } = this.state;
+    if (!e.target.className.includes("inactive")) {
+      e.target.style.color = `rgba(${colorForHover.r}, ${colorForHover.g}, ${colorForHover.b}, ${colorForHover.a})`;
+    }
+  };
 
+  hoverRemove = (e) => {
+    e.target.style.color = "";
+  };
   render() {
     const {
       navbarData,
@@ -315,7 +329,12 @@ class NavbarAdmin extends Component {
             ) : latestFileInfoForLogo ? (
               <img src={imageSrc} alt="Logo" />
             ) : (
-              <span className="add-icon" onClick={this.handleDoubleClicked}>
+              <span
+                className="add-icon"
+                onClick={this.handleDoubleClicked}
+                onMouseEnter={this.hoverAdd}
+                onMouseLeave={this.hoverRemove}
+              >
                 +
               </span>
             )}
@@ -348,6 +367,8 @@ class NavbarAdmin extends Component {
                     <span
                       className="item-title"
                       onDoubleClick={() => this.handleDoubleClickText(index)}
+                      onMouseEnter={this.hoverAdd}
+                      onMouseLeave={this.hoverRemove}
                     >
                       {item.title}
                     </span>
@@ -357,6 +378,8 @@ class NavbarAdmin extends Component {
                       className="add-icon"
                       onClick={this.handleAddInput}
                       style={addIconStyle}
+                      onMouseEnter={this.hoverAdd}
+                      onMouseLeave={this.hoverRemove}
                     >
                       +
                     </span>
@@ -368,6 +391,8 @@ class NavbarAdmin extends Component {
                   className="add-icon"
                   onClick={this.handleAddInput}
                   style={addIconStyle}
+                  onMouseEnter={this.hoverAdd}
+                  onMouseLeave={this.hoverRemove}
                 >
                   +
                 </span>
@@ -375,12 +400,24 @@ class NavbarAdmin extends Component {
             </div>
           </div>
           <div className="icons">
-            <i className="bi bi-palette" onClick={this.handlePaletteClick}></i>
+            <i
+              className="bi bi-palette"
+              onClick={this.handlePaletteClick}
+              onMouseEnter={this.hoverAdd}
+              onMouseLeave={this.hoverRemove}
+            ></i>
             <i
               className={`bi bi-save ${changesPending ? "" : "inactive"}`}
               onClick={changesPending ? this.handleSave : null}
+              onMouseEnter={this.hoverAdd}
+              onMouseLeave={this.hoverRemove}
             ></i>
-            <i className="bi bi-clock-history" onClick={this.toggleSidebar}></i>
+            <i
+              className="bi bi-clock-history"
+              onClick={this.toggleSidebar}
+              onMouseEnter={this.hoverAdd}
+              onMouseLeave={this.hoverRemove}
+            ></i>
           </div>
           <Sidebar
             showSidebar={showSidebar}

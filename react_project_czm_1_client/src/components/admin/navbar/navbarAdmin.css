@@ -24,23 +24,11 @@
   transition: color 0.3s ease-in-out;
 }
 
-
-
 .item-title {
   margin: 0 20px;
   font-weight: 600;
   font-size: 18px;
   transition: color 0.3s ease-in-out;
-}
-
-.item-title:hover {
-  color: #007bff;
-}
-.add-icon:hover {
-  color: #007bff;
-}
-.bi:hover {
-  color: #007bff;
 }
 
 .navbar-brand {
@@ -98,10 +86,9 @@
   transition: color 0.3s ease-in-out;
 }
 
-
 .bi-save.inactive {
-  color: lightgray; 
-  cursor: default; 
+  color: lightgray;
+  cursor: default;
 }
 
 @keyframes slideDown {
@@ -115,7 +102,7 @@
   }
 }
 .save-instruction {
-  color: white; 
+  color: white;
   text-align: center;
   line-height: 20px;
   margin-top: 0;
