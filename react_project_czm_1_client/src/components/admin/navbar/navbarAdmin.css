@@ -17,7 +17,6 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: #f0f0f0;
   text-align: center;
   line-height: 24px;
   font-weight: bold;
@@ -25,9 +24,7 @@
   transition: color 0.3s ease-in-out;
 }
 
-.add-icon:hover {
-  color: #007bff;
-}
+
 
 .item-title {
   margin: 0 20px;
@@ -37,6 +34,12 @@
 }
 
 .item-title:hover {
+  color: #007bff;
+}
+.add-icon:hover {
+  color: #007bff;
+}
+.bi:hover {
   color: #007bff;
 }
 
@@ -95,9 +98,6 @@
   transition: color 0.3s ease-in-out;
 }
 
-.bi:hover {
-  color: #007bff;
-}
 
 .bi-save.inactive {
   color: lightgray; 

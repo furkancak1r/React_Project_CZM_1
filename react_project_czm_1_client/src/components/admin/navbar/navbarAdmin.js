@@ -23,6 +23,10 @@ class NavbarAdmin extends Component {
     savedSuccessMessage: false,
     showColorPalette: false,
     background: { r: 255, g: 255, b: 255, a: 1 },
+    navbarColorSelected: true,
+    hoverColorSelected: false,
+    backgroundColorForNavbar: { r: 255, g: 255, b: 255, a: 1 },
+    colorForHover: { r: 255, g: 255, b: 255, a: 1 },
   };
   constructor(props) {
     super(props);
@@ -30,6 +34,7 @@ class NavbarAdmin extends Component {
 
     this.handleChangeComplete = this.handleChangeComplete.bind(this);
 
+    this.handleColorSelected = this.handleColorSelected.bind(this);
   }
 
   editableRef = null;
@@ -51,7 +56,7 @@ class NavbarAdmin extends Component {
   async fetchLatestFileInfoAndSetState(location, count, stateKey) {
     try {
       const fileInfo = await fetchLatestFileVersions(location, count);
-      this.setState({ [stateKey]: fileInfo }, () => { });
+      this.setState({ [stateKey]: fileInfo }, () => {});
     } catch (error) {
       console.error(`${stateKey} güncellenirken hata oluştu:`, error);
     }
@@ -99,8 +104,8 @@ class NavbarAdmin extends Component {
       !this.sidebarRef.contains(event.target)
     ) {
       this.setState({ showSidebar: false });
-    };
-    const colorPalette = document.querySelector('.colorPalette');
+    }
+    const colorPalette = document.querySelector(".colorPalette");
     const isClickInsidePalette = colorPalette.contains(event.target);
 
     if (this.state.showColorPalette && !isClickInsidePalette) {
@@ -217,7 +222,6 @@ class NavbarAdmin extends Component {
   };
   updateSidebarRef = (newRef) => {
     this.sidebarRef = newRef;
-
   };
 
   handlePaletteClick = () => {
@@ -226,6 +230,32 @@ class NavbarAdmin extends Component {
 
   handleChangeComplete = (color) => {
     this.setState({ background: color.rgb });
+
+    const { background, navbarColorSelected, hoverColorSelected } = this.state;
+
+    if (navbarColorSelected) {
+      this.setState({
+        backgroundColorForNavbar: background,
+      });
+    } else if (hoverColorSelected) {
+      this.setState({
+        colorForHover: background,
+      });
+    }
+  };
+
+  handleColorSelected = (selected) => {
+    if (selected === "navbar") {
+      this.setState({
+        navbarColorSelected: true,
+        hoverColorSelected: false,
+      });
+    } else if (selected === "hover") {
+      this.setState({
+        navbarColorSelected: false,
+        hoverColorSelected: true,
+      });
+    }
   };
 
   render() {
@@ -239,18 +269,28 @@ class NavbarAdmin extends Component {
       savedSuccessMessage,
       showColorPalette,
       background,
+      backgroundColorForNavbar,
+      colorForHover,
     } = this.state;
     let imageSrc = "";
     let latestFileInfoForLogo = latestFileInfoForLogos[0];
     if (latestFileInfoForLogo && latestFileInfoForLogo.fileExtention) {
       imageSrc = `data:${latestFileInfoForLogo.fileExtention};base64,${latestFileInfoForLogo.fileBase64}`;
     }
-
+    const navbarStyle = backgroundColorForNavbar && {
+      backgroundColor: `rgba(${backgroundColorForNavbar.r}, ${backgroundColorForNavbar.g}, ${backgroundColorForNavbar.b}, ${backgroundColorForNavbar.a})`,
+    };
+    const addIconStyle = backgroundColorForNavbar && {
+      background: `rgba(${backgroundColorForNavbar.r + 30}, ${
+        backgroundColorForNavbar.g
+      }, ${backgroundColorForNavbar.b}, ${backgroundColorForNavbar.a})`,
+    };
     return (
       <div>
         <div
-          className={`save-instruction ${changesPending ? "info" : ""} ${savedSuccessMessage ? "success" : ""
-            }`}
+          className={`save-instruction ${changesPending ? "info" : ""} ${
+            savedSuccessMessage ? "success" : ""
+          }`}
         >
           {changesPending && (
             <div>
@@ -260,7 +300,10 @@ class NavbarAdmin extends Component {
           {savedSuccessMessage && <div>Değişiklikler başarıyla kaydedildi</div>}
         </div>
 
-        <nav className="navbar navbar-expand-lg navbar-light bg-light">
+        <nav
+          className="navbar navbar-expand-lg navbar-light "
+          style={navbarStyle}
+        >
           <div
             className="navbar-brand"
             onMouseEnter={this.bubbleAdd}
@@ -283,8 +326,9 @@ class NavbarAdmin extends Component {
           </div>
           <div className="container">
             <div
-              className={`belowContainer ${navbarData.length <= 6 ? "showPadding wide" : "showPadding"
-                }`}
+              className={`belowContainer ${
+                navbarData.length <= 6 ? "showPadding wide" : "showPadding"
+              }`}
             >
               {navbarData.map((item, index) => (
                 <div
@@ -309,14 +353,22 @@ class NavbarAdmin extends Component {
                     </span>
                   )}
                   {index === navbarData.length - 1 && (
-                    <span className="add-icon" onClick={this.handleAddInput}>
+                    <span
+                      className="add-icon"
+                      onClick={this.handleAddInput}
+                      style={addIconStyle}
+                    >
                       +
                     </span>
                   )}
                 </div>
               ))}
               {navbarData.length === 0 && (
-                <span className="add-icon" onClick={this.handleAddInput}>
+                <span
+                  className="add-icon"
+                  onClick={this.handleAddInput}
+                  style={addIconStyle}
+                >
                   +
                 </span>
               )}
@@ -340,6 +392,9 @@ class NavbarAdmin extends Component {
               <ColorPalette
                 background={background}
                 handleChangeComplete={this.handleChangeComplete}
+                handleColorSelected={this.handleColorSelected}
+                colorForHover={colorForHover}
+                navbarStyle={navbarStyle}
               />
             )}
           </div>
