@@ -68,7 +68,6 @@ app.post("/sqldata/selectRowsWithLatestTitleVersion", async (req, res) => {
       table_names,
       columns
     );
-
     res.json(rows);
   } catch (error) {
     console.error("Satırlar alınırken bir hata oluştu:", error);
@@ -162,4 +161,27 @@ app.post("/sqldata/getLatestFileVersionsByLocation", async (req, res) => {
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
+});
+
+app.post("/sqldata/uploadColors", async (req, res) => {
+  const { allColors } = req.body;
+
+  try {
+    const responsePromises = [];
+
+    for (const colorName in allColors) {
+      const color = allColors[colorName];
+      const location = colorName;
+
+      const responsePromise = uploadColors(location, color);
+      responsePromises.push(responsePromise);
+    }
+
+    const responses = await Promise.all(responsePromises);
+
+    res.json(responses);
+  } catch (error) {
+    console.error("Renkler yüklenirken bir hata oluştu:", error);
+    res.status(500).json({ error: "İçsel sunucu hatası" });
+  }
 });

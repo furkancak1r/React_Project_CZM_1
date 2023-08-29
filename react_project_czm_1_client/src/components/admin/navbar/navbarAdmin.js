@@ -27,6 +27,7 @@ class NavbarAdmin extends Component {
     hoverColorSelected: false,
     backgroundColorForNavbar: { r: 248, g: 249, b: 250, a: 1 },
     colorForHover: { r: 0, g: 123, b: 255, a: 1 },
+    allColors: {},
   };
   constructor(props) {
     super(props);
@@ -35,6 +36,7 @@ class NavbarAdmin extends Component {
     this.handleChangeComplete = this.handleChangeComplete.bind(this);
 
     this.handleColorSelected = this.handleColorSelected.bind(this);
+    this.testNavbarInfo = null;
   }
 
   editableRef = null;
@@ -66,6 +68,8 @@ class NavbarAdmin extends Component {
     await fetchNavbarData().then((data) => {
       if (data && data.length > 0) {
         this.setState({ navbarData: data });
+      } else {
+        this.isNavbarDataServerEmpty = true;
       }
     });
   };
@@ -129,21 +133,29 @@ class NavbarAdmin extends Component {
   };
   handleTitleChange = (index, event) => {
     const { navbarData } = this.state;
-
-    if (this.testNavbarInfo === null) {
-      this.testNavbarInfo = navbarData.map((item) => ({ ...item }));
-    }
-
     const newNavbarData = [...navbarData];
-    const originalTitle = this.testNavbarInfo[index].title;
-    newNavbarData[index].title = event.target.value;
 
-    const isTextChanged = originalTitle !== newNavbarData[index].title;
+    if (!this.isNavbarDataServerEmpty) {
+      if (this.testNavbarInfo === null) {
+        this.testNavbarInfo = navbarData.map((item) => ({ ...item }));
+      }
 
-    this.setState({
-      navbarData: newNavbarData,
-      changesPending: isTextChanged,
-    });
+      const originalTitle = this.testNavbarInfo[index].title;
+      newNavbarData[index].title = event.target.value;
+
+      const isTextChanged = originalTitle !== newNavbarData[index].title;
+
+      this.setState({
+        navbarData: newNavbarData,
+        changesPending: isTextChanged,
+      });
+    } else {
+      newNavbarData[index].title = event.target.value;
+      this.setState({
+        navbarData: newNavbarData,
+        changesPending: true,
+      });
+    }
   };
 
   handleAddInput = () => {
@@ -188,13 +200,14 @@ class NavbarAdmin extends Component {
   };
 
   handleSave = async () => {
-    const { navbarData, uploadedLogoFile } = this.state;
+    const { navbarData, uploadedLogoFile, allColors } = this.state;
     try {
       this.setState({ changesPending: false });
       await handleSaveAdminFn(
         navbarData,
         uploadedLogoFile,
-        this.fetchDataAndSetState.bind(this)
+        this.fetchDataAndSetState.bind(this),
+        allColors
       );
       this.setState({ savedSuccessMessage: true });
       setTimeout(() => {
@@ -231,34 +244,45 @@ class NavbarAdmin extends Component {
   handleChangeComplete = (color) => {
     this.setState({ background: color.rgb });
 
-    const { background, navbarColorSelected, hoverColorSelected } = this.state;
+    const {
+      background,
+      navbarColorSelected,
+      hoverColorSelected,
+      allColors,
+    } = this.state;
 
     if (navbarColorSelected) {
       this.setState({
         backgroundColorForNavbar: background,
+        allColors: {
+          ...allColors,
+          backgroundColorForNavbar: background,
+        },
       });
     } else if (hoverColorSelected) {
       this.setState({
         colorForHover: background,
+        allColors: {
+          ...allColors,
+          colorForHover: background,
+        },
       });
     }
   };
 
   handleColorSelected = (selected) => {
-    const {backgroundColorForNavbar,colorForHover}=this.state;
+    const { backgroundColorForNavbar, colorForHover } = this.state;
     if (selected === "navbar") {
       this.setState({
         navbarColorSelected: true,
         hoverColorSelected: false,
-        background:backgroundColorForNavbar,
-
+        background: backgroundColorForNavbar,
       });
     } else if (selected === "hover") {
       this.setState({
         navbarColorSelected: false,
         hoverColorSelected: true,
-        background:colorForHover,
-
+        background: colorForHover,
       });
     }
   };

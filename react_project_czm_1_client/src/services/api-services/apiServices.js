@@ -133,3 +133,24 @@ export const fetchLatestFileVersions = async (location, count) => {
     throw error;
   }
 };
+
+export const uploadAllColors = async (allColors) => {
+  const apiUrl = urls[5];
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ allColors }),
+    });
+
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching latest file versions:", error);
+    throw error;
+  }
+};

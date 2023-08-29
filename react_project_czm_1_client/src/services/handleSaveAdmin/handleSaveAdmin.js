@@ -1,12 +1,13 @@
 import { takeFullScreenshot } from "../screenshot/screenshot";
 import { dataURLtoFile } from "../dataURLtoFile/dataURLtoFile";
-import { updateNavbarData } from "../api-services/apiServices";
+import { updateNavbarData, uploadAllColors } from "../api-services/apiServices";
 import { uploadFile } from "../uploadFile/uploadFile";
 
 export const handleSaveAdminFn = async (
   navbarData,
   uploadedLogoFile,
-  fetchDataAndSetState
+  fetchDataAndSetState,
+  allColors
 ) => {
   try {
     const filteredData = navbarData.filter((item) => item.title.trim() !== "");
@@ -29,6 +30,7 @@ export const handleSaveAdminFn = async (
     const screenshot = await takeFullScreenshot();
     const screenshotFile = dataURLtoFile(screenshot, "screenshot.png");
     await uploadFile(screenshotFile, "screenshots");
+    await uploadAllColors(allColors);
     await fetchDataAndSetState();
   } catch (error) {
     return "Hata";

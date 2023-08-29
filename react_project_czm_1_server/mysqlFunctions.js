@@ -1,7 +1,7 @@
-const mysql = require("mysql");
+const mysql2 = require("mysql2");
 const config = require("./config");
 
-const connection = mysql.createConnection(config);
+const connection = mysql2.createConnection(config);
 
 connection.connect(function (err) {
   if (err) {
@@ -194,6 +194,50 @@ function getFileByVersionAndLocation(location, version) {
     });
   });
 }
+
+function selectMaxColorVersion(location) {
+  return new Promise((resolve, reject) => {
+    const selectMaxColorVersionQuery = `SELECT MAX(color_version) as max_color_version FROM \`${location}\`;`;
+    connection.query(selectMaxColorVersionQuery, function (err, results) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(
+          results[0].max_color_version !== null
+            ? results[0].max_color_version
+            : 0
+        );
+      }
+    });
+  });
+}
+
+function uploadColors(location, color) {
+  return new Promise((resolve, reject) => {
+    selectMaxColorVersion(location)
+      .then((maxColorVersion) => {
+        const newColorVersion = Number(maxColorVersion) + 1;
+
+        const insertQuery =
+          "INSERT INTO colors (location, color, color_version) VALUES (?, ?, ?)";
+
+        connection.query(
+          insertQuery,
+          [location, JSON.stringify(color), newColorVersion],
+          function (err, results) {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(results);
+            }
+          }
+        );
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
 module.exports = {
   createTable,
   dropTable,
@@ -205,4 +249,5 @@ module.exports = {
   selectMaxFileVersion,
   uploadFile,
   getFileByVersionAndLocation,
+  uploadColors,
 };

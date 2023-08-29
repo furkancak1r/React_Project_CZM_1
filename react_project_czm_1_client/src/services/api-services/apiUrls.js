@@ -6,6 +6,7 @@ const urls = [
   `${localhost}/api/adminLogin`,
   `${localhost}/sqldata/uploadFile`,
   `${localhost}/sqldata/getLatestFileVersionsByLocation`,
+  `${localhost}/sqldata/uploadColors`, 
 ];
 
 export default urls;
