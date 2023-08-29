@@ -159,29 +159,36 @@ app.post("/sqldata/getLatestFileVersionsByLocation", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+app.get("/sqldata/fetchMaxColorVersion", async (req, res) => {
+  try {
+    const responseMaxColorVersion = await mysqlFunctions.selectMaxColorVersion(
+      "colors"
+    );
+
+    res.json(responseMaxColorVersion);
+  } catch (error) {
+    console.error("Max_Color_Version alırken bir hata oluştu:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
-app.post("/sqldata/uploadColors", async (req, res) => {
-  const { allColors } = req.body;
-
+app.post("/sqldata/uploadColor", async (req, res) => {
+  const { location, color ,newColorVersion } = req.body;
   try {
-    const responsePromises = [];
+   
 
-    for (const colorName in allColors) {
-      const color = allColors[colorName];
-      const location = colorName;
-
-      const responsePromise = uploadColors(location, color);
-      responsePromises.push(responsePromise);
-    }
-
-    const responses = await Promise.all(responsePromises);
-
-    res.json(responses);
+    const response = await mysqlFunctions.uploadColor(
+      location,
+      color,
+      newColorVersion
+    );
+    res.json(response);
   } catch (error) {
-    console.error("Renkler yüklenirken bir hata oluştu:", error);
+    console.error("Renk yüklenirken bir hata oluştu:", error);
     res.status(500).json({ error: "İçsel sunucu hatası" });
   }
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
 });

@@ -134,23 +134,61 @@ export const fetchLatestFileVersions = async (location, count) => {
   }
 };
 
-export const uploadAllColors = async (allColors) => {
-  const apiUrl = urls[5];
+export const fetchMaxColorVersion = async () => {
+  const apiUrlForMaxColorVersion = urls[5];
 
   try {
-    const response = await fetch(apiUrl, {
-      method: "POST",
+    const response = await fetch(apiUrlForMaxColorVersion, {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ allColors }),
     });
 
     const data = await response.json();
-
     return data;
   } catch (error) {
-    console.error("Error fetching latest file versions:", error);
+    console.error("Error fetching max color version:", error);
+    throw error;
+  }
+};
+export const uploadAllColors = async (allColors) => {
+  const apiUrlForUploadColor = urls[6];
+
+  try {
+    const maxColorVersion = await fetchMaxColorVersion();
+    const newColorVersion = Number(maxColorVersion) + 1;
+
+    const responsePromises = [];
+    
+    for (const location in allColors) {
+      const color = allColors[location];
+      const responsePromise = await fetch(apiUrlForUploadColor, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ location, color, newColorVersion }),
+      });
+
+      responsePromises.push(responsePromise);
+    }
+
+    const responses = await Promise.all(responsePromises);
+    const responseData = [];
+
+    for (const response of responses) {
+      try {
+        const data = await response.json();
+        responseData.push(data);
+      } catch (error) {
+        console.error("Error parsing response:", error);
+      }
+    }
+
+    return responseData;
+  } catch (error) {
+    console.error("Error uploading colors:", error);
     throw error;
   }
 };

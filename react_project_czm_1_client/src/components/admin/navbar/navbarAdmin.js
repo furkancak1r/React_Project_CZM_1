@@ -258,6 +258,7 @@ class NavbarAdmin extends Component {
           ...allColors,
           backgroundColorForNavbar: background,
         },
+        changesPending: true,
       });
     } else if (hoverColorSelected) {
       this.setState({
@@ -266,6 +267,7 @@ class NavbarAdmin extends Component {
           ...allColors,
           colorForHover: background,
         },
+        changesPending: true,
       });
     }
   };

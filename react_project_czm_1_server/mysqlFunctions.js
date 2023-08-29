@@ -195,9 +195,9 @@ function getFileByVersionAndLocation(location, version) {
   });
 }
 
-function selectMaxColorVersion(location) {
+function selectMaxColorVersion(table_name) {
   return new Promise((resolve, reject) => {
-    const selectMaxColorVersionQuery = `SELECT MAX(color_version) as max_color_version FROM \`${location}\`;`;
+    const selectMaxColorVersionQuery = `SELECT MAX(color_version) as max_color_version FROM \`${table_name}\`;`;
     connection.query(selectMaxColorVersionQuery, function (err, results) {
       if (err) {
         reject(err);
@@ -212,30 +212,22 @@ function selectMaxColorVersion(location) {
   });
 }
 
-function uploadColors(location, color) {
+function uploadColor(location, color, newColorVersion) {
   return new Promise((resolve, reject) => {
-    selectMaxColorVersion(location)
-      .then((maxColorVersion) => {
-        const newColorVersion = Number(maxColorVersion) + 1;
+    const insertQuery =
+      "INSERT INTO colors (location, color, color_version) VALUES (?, ?, ?)";
 
-        const insertQuery =
-          "INSERT INTO colors (location, color, color_version) VALUES (?, ?, ?)";
-
-        connection.query(
-          insertQuery,
-          [location, JSON.stringify(color), newColorVersion],
-          function (err, results) {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(results);
-            }
-          }
-        );
-      })
-      .catch((error) => {
-        reject(error);
-      });
+    connection.query(
+      insertQuery,
+      [location, JSON.stringify(color), newColorVersion],
+      function (err, results) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(results);
+        }
+      }
+    );
   });
 }
 module.exports = {
@@ -249,5 +241,6 @@ module.exports = {
   selectMaxFileVersion,
   uploadFile,
   getFileByVersionAndLocation,
-  uploadColors,
+  uploadColor,
+  selectMaxColorVersion,
 };

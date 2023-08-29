@@ -6,10 +6,10 @@ const config = {
   //user: "sql7637435",
   //password: "sIKCLcIep1",
   //database: "sql7637435",
-  host: "db4free.net",
-  user: "adminczmtest",
-  password: "12345678",
-  database: "czmtestdb",
+  host: "localhost",
+  user: "root",
+  password: "1234",
+  database: "sys",
 };
 
 module.exports = config;

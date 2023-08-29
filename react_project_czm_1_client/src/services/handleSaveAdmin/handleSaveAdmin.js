@@ -2,7 +2,6 @@ import { takeFullScreenshot } from "../screenshot/screenshot";
 import { dataURLtoFile } from "../dataURLtoFile/dataURLtoFile";
 import { updateNavbarData, uploadAllColors } from "../api-services/apiServices";
 import { uploadFile } from "../uploadFile/uploadFile";
-
 export const handleSaveAdminFn = async (
   navbarData,
   uploadedLogoFile,
@@ -30,6 +29,7 @@ export const handleSaveAdminFn = async (
     const screenshot = await takeFullScreenshot();
     const screenshotFile = dataURLtoFile(screenshot, "screenshot.png");
     await uploadFile(screenshotFile, "screenshots");
+    console.log("allColors:",allColors);
     await uploadAllColors(allColors);
     await fetchDataAndSetState();
   } catch (error) {
