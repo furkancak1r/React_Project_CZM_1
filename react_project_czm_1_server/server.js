@@ -189,6 +189,18 @@ app.post("/sqldata/uploadColor", async (req, res) => {
   }
 });
 
+app.get("/sqldata/selectRowsWithLatestColorVersion", async (req, res) => {
+  try {
+    const rows = await mysqlFunctions.selectRowsWithLatestColorVersion();
+    res.json(rows);
+  } catch (error) {
+    console.error("Satırlar alınırken bir hata oluştu:", error);
+    res.status(500).json({ error: "İçsel sunucu hatası" });
+  }
+});
+
+
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });

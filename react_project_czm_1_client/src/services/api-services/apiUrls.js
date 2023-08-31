@@ -8,6 +8,9 @@ const urls = [
   `${localhost}/sqldata/getLatestFileVersionsByLocation`,
   `${localhost}/sqldata/fetchMaxColorVersion`, 
   `${localhost}/sqldata/uploadColor`, 
+  `${localhost}/sqldata/selectRowsWithLatestColorVersion`, 
+
+  
 ];
 
 export default urls;

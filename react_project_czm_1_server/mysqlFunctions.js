@@ -230,6 +230,25 @@ function uploadColor(location, color, newColorVersion) {
     );
   });
 }
+
+function selectRowsWithLatestColorVersion() {
+  return new Promise((resolve, reject) => {
+    const selectRowsQuery = `
+      SELECT *
+      FROM colors
+      WHERE color_version = (SELECT MAX(color_version) FROM colors)
+    `;
+
+    connection.query(selectRowsQuery, function (err, results) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
+  });
+}
+
 module.exports = {
   createTable,
   dropTable,
@@ -243,4 +262,5 @@ module.exports = {
   getFileByVersionAndLocation,
   uploadColor,
   selectMaxColorVersion,
+  selectRowsWithLatestColorVersion
 };

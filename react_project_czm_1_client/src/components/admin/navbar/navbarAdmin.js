@@ -1,5 +1,8 @@
 import React, { Component } from "react";
-import { fetchNavbarData } from "../../../services/api-services/apiServices";
+import {
+  fetchNavbarData,
+  fetchColorData,
+} from "../../../services/api-services/apiServices";
 import "./navbarAdmin.css";
 import {
   addGlobalEventListeners,
@@ -22,11 +25,11 @@ class NavbarAdmin extends Component {
     changesPending: false,
     savedSuccessMessage: false,
     showColorPalette: false,
-    background: { r: 255, g: 255, b: 255, a: 1 },
+    background: {},
     navbarColorSelected: true,
     hoverColorSelected: false,
-    backgroundColorForNavbar: { r: 248, g: 249, b: 250, a: 1 },
-    colorForHover: { r: 0, g: 123, b: 255, a: 1 },
+    backgroundColorForNavbar: {},
+    colorForHover: {},
     allColors: {},
   };
   constructor(props) {
@@ -65,11 +68,38 @@ class NavbarAdmin extends Component {
   }
 
   fetchAndSetNavbarData = async () => {
+    const { backgroundColorForNavbar, colorForHover } = this.state;
     await fetchNavbarData().then((data) => {
       if (data && data.length > 0) {
         this.setState({ navbarData: data });
       } else {
         this.isNavbarDataServerEmpty = true;
+      }
+    });
+
+    await fetchColorData().then((colors) => {
+      if (colors && colors.length > 0) {
+        this.setState({ allColors: colors });
+      }
+      for (const color of colors) {
+        let properColor = JSON.parse(color.color);
+
+        if (
+          Object.keys(backgroundColorForNavbar).length === 0 &&
+          color.location === "backgroundColorForNavbar"
+        ) {
+          this.setState({
+            backgroundColorForNavbar: properColor,
+          });
+        }
+        if (
+          Object.keys(colorForHover).length === 0 &&
+          color.location === "colorForHover"
+        ) {
+          this.setState({
+            colorForHover: properColor,
+          });
+        }
       }
     });
   };
@@ -269,7 +299,7 @@ class NavbarAdmin extends Component {
         },
         changesPending: true,
       });
-    }
+    } 
   };
 
   handleColorSelected = (selected) => {
@@ -290,7 +320,7 @@ class NavbarAdmin extends Component {
   };
   hoverAdd = (e) => {
     const { colorForHover } = this.state;
-    if (!e.target.className.includes("inactive")) {
+    if (colorForHover && !e.target.className.includes("inactive")) {
       e.target.style.color = `rgba(${colorForHover.r}, ${colorForHover.g}, ${colorForHover.b}, ${colorForHover.a})`;
     }
   };
@@ -325,6 +355,7 @@ class NavbarAdmin extends Component {
         backgroundColorForNavbar.g
       }, ${backgroundColorForNavbar.b}, ${backgroundColorForNavbar.a})`,
     };
+
     return (
       <div>
         <div

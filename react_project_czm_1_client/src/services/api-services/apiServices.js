@@ -192,3 +192,22 @@ export const uploadAllColors = async (allColors) => {
     throw error;
   }
 };
+
+export const fetchColorData = async () => {
+  const apiUrl = urls[7];
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching max color version:", error);
+    throw error;
+  }
+};
