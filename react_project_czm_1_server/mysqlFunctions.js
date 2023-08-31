@@ -3,243 +3,169 @@ const config = require("./config");
 
 const connection = mysql2.createConnection(config);
 
-connection.connect(function (err) {
-  if (err) {
-    console.error("Veritabanına bağlanırken hata oluştu:", err);
-  } else {
-    console.log("Veritabanına bağlanıldı");
-  }
-});
+connection.connect();
 
-function createTable(table_names) {
-  const createTableQuery = `CREATE TABLE IF NOT EXISTS \`${table_names}\` (
-    id INT AUTO_INCREMENT PRIMARY KEY
-  )`;
-
-  connection.query(createTableQuery, function (err) {
-    if (err) {
-      console.error("Tablo oluşturulurken bir hata oluştu:", err);
-    }
+async function runQuery(query, values = []) {
+  return new Promise((resolve, reject) => {
+    connection.query(query, values, (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
   });
 }
 
-function dropTable(table_names) {
-  const dropTableQuery = `DROP TABLE \`${table_names}\`;`;
-
-  connection.query(dropTableQuery, function (err) {
-    if (err) {
-      console.error("Tablo silinirken bir hata oluştu:", err);
-    }
-  });
+async function createTable(tableName) {
+  const query = `
+    CREATE TABLE IF NOT EXISTS \`${tableName}\` (
+      id INT AUTO_INCREMENT PRIMARY KEY
+    )
+  `;
+  await runQuery(query);
 }
 
-function insertRow(table_name, columns, values, title_version) {
+async function dropTable(tableName) {
+  const query = `DROP TABLE \`${tableName}\``;
+  await runQuery(query);
+}
+
+async function insertRow(values, title_version,savedVersion) {
   let newTitleVersion = title_version || 0;
   newTitleVersion += 1;
 
-  let insertRowQuery = `INSERT INTO ${table_name} (${columns}, title_version) VALUES `;
+  let insertRowQuery = `INSERT INTO navbar (title, title_version, saved_version) VALUES `;
 
   for (let i = 0; i < values.length; i++) {
-    insertRowQuery += `('${values[i]}', ${newTitleVersion})`;
+    insertRowQuery += `('${values[i]}', ${newTitleVersion},${savedVersion})`;
     if (i < values.length - 1) {
       insertRowQuery += ", ";
     }
   }
 
-  connection.query(insertRowQuery, function (err) {
-    if (err) {
-      console.error(
-        `An error occurred while inserting rows into the "${table_name}" table:`,
-        err
-      );
-    }
-  });
+  const query = `
+    ${insertRowQuery}
+  `;
+
+  try {
+    const results = await runQuery(query);
+    return results;
+  } catch (err) {
+    console.error("An error occurred while inserting rows:", err);
+  }
 }
 
-function selectMaxTitleVersion(table_names) {
-  return new Promise((resolve, reject) => {
-    const selectMaxTitleVersionQuery = `SELECT MAX(title_version) as max_title_version FROM \`${table_names}\`;`;
 
-    connection.query(selectMaxTitleVersionQuery, function (err, results) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(results[0].max_title_version);
-      }
-    });
-  });
+async function selectMaxTitleVersion(tableName) {
+  const query = `SELECT MAX(title_version) AS max_title_version FROM \`${tableName}\``;
+  const results = await runQuery(query);
+  return results[0].max_title_version;
 }
 
-function selectRows(table_names, columns) {
-  return new Promise((resolve, reject) => {
-    const selectRowsQuery = `SELECT ${columns} FROM \`${table_names}\`;`;
-
-    connection.query(selectRowsQuery, function (err, results) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(results);
-      }
-    });
-  });
+async function selectRows(tableName, columns) {
+  const query = `SELECT ${columns} FROM \`${tableName}\``;
+  return runQuery(query);
 }
 
-function selectRowsWithLatestTitleVersion(table_names, columns) {
-  return new Promise((resolve, reject) => {
-    const selectRowsQuery = `
-      SELECT ${columns}
-      FROM ${table_names}
-      WHERE title_version = (SELECT MAX(title_version) FROM ${table_names})
-    `;
-
-    connection.query(selectRowsQuery, function (err, results) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(results);
-      }
-    });
-  });
-}
-function findByUsername(username) {
-  return new Promise((resolve, reject) => {
-    const findByUsernameQuery = `SELECT * FROM users WHERE username = '${username}';`;
-
-    connection.query(findByUsernameQuery, function (err, results) {
-      if (err) {
-        reject(err);
-      } else {
-        if (results.length > 0) {
-          resolve(results[0]);
-        } else {
-          resolve(null);
-        }
-      }
-    });
-  });
+async function selectRowsWithLatestTitleVersion(tableName, columns) {
+  const subQuery = `SELECT MAX(title_version) FROM ${tableName}`;
+  const query = `
+    SELECT ${columns}
+    FROM ${tableName}
+    WHERE title_version = (${subQuery})
+  `;
+  return runQuery(query);
 }
 
-function selectMaxFileVersion(location) {
-  return new Promise((resolve, reject) => {
-    const selectMaxFileVersionQuery =
-      "SELECT MAX(file_version) as max_file_version FROM files WHERE location = ?";
-
-    connection.query(
-      selectMaxFileVersionQuery,
-      [location],
-      function (err, results) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(
-            results[0].max_file_version !== null
-              ? results[0].max_file_version
-              : 0
-          );
-        }
-      }
-    );
-  });
+async function findByUsername(username) {
+  const query = `SELECT * FROM users WHERE username = ?`;
+  const results = await runQuery(query, [username]);
+  return results[0] || null;
 }
 
-function uploadFile(fileName, fileExtention, location, fileBase64) {
-  return new Promise((resolve, reject) => {
-    selectMaxFileVersion(location)
-      .then((maxFileVersion) => {
-        const newFileVersion = Number(maxFileVersion) + 1;
-
-        const insertQuery =
-          "INSERT INTO files (fileName, fileExtention, location, file_version, fileBase64) VALUES (?, ?, ?, ?, ?)";
-
-        connection.query(
-          insertQuery,
-          [fileName, fileExtention, location, newFileVersion, fileBase64],
-          function (err, results) {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(results);
-            }
-          }
-        );
-      })
-      .catch((error) => {
-        reject(error);
-      });
-  });
-}
-function getFileByVersionAndLocation(location, version) {
-  return new Promise((resolve, reject) => {
-    const selectQuery = `
-      SELECT *
-      FROM files
-      WHERE location = ? AND file_version = ?
-    `;
-
-    connection.query(selectQuery, [location, version], function (err, results) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(results[0]);
-      }
-    });
-  });
+async function selectMaxFileVersion(location) {
+  const query = `
+    SELECT MAX(file_version) AS max_file_version
+    FROM files
+    WHERE location = ?
+  `;
+  const results = await runQuery(query, [location]);
+  return results[0].max_file_version || 0;
 }
 
-function selectMaxColorVersion(table_name) {
-  return new Promise((resolve, reject) => {
-    const selectMaxColorVersionQuery = `SELECT MAX(color_version) as max_color_version FROM \`${table_name}\`;`;
-    connection.query(selectMaxColorVersionQuery, function (err, results) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(
-          results[0].max_color_version !== null
-            ? results[0].max_color_version
-            : 0
-        );
-      }
-    });
-  });
+async function uploadFile(
+  fileName,
+  fileExtension,
+  location,
+  fileBase64,
+  savedVersion
+) {
+  const maxFileVersion = await selectMaxFileVersion(location);
+  const newFileVersion = Number(maxFileVersion) + 1;
+
+  const query = `
+    INSERT INTO files (fileName, fileExtension, location, file_version, fileBase64, saved_version)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+  const values = [
+    fileName,
+    fileExtension,
+    location,
+    newFileVersion,
+    fileBase64,
+    savedVersion || 0,
+  ];
+  const results = await runQuery(query, values);
+  return results;
 }
 
-function uploadColor(location, color, newColorVersion) {
-  return new Promise((resolve, reject) => {
-    const insertQuery =
-      "INSERT INTO colors (location, color, color_version) VALUES (?, ?, ?)";
-
-    connection.query(
-      insertQuery,
-      [location, JSON.stringify(color), newColorVersion],
-      function (err, results) {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(results);
-        }
-      }
-    );
-  });
+async function getFileByVersionAndLocation(location, version) {
+  const query = `
+    SELECT *
+    FROM files
+    WHERE location = ? AND file_version = ?
+  `;
+  const results = await runQuery(query, [location, version]);
+  return results[0];
 }
 
-function selectRowsWithLatestColorVersion() {
-  return new Promise((resolve, reject) => {
-    const selectRowsQuery = `
-      SELECT *
-      FROM colors
-      WHERE color_version = (SELECT MAX(color_version) FROM colors)
-    `;
-
-    connection.query(selectRowsQuery, function (err, results) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(results);
-      }
-    });
-  });
+async function selectMaxColorVersion(tableName) {
+  const query = `SELECT MAX(color_version) AS max_color_version FROM \`${tableName}\``;
+  const results = await runQuery(query);
+  return results[0].max_color_version || 0;
 }
 
+async function uploadColor(location, color, newColorVersion, savedVersion) {
+  const query = `
+    INSERT INTO colors (location, color, color_version, saved_version)
+    VALUES (?, ?, ?, ?)
+  `;
+  const values = [
+    location,
+    JSON.stringify(color),
+    newColorVersion,
+    savedVersion || 0,
+  ];
+  const results=await runQuery(query, values);
+  return results;
+}
+
+async function selectRowsWithLatestColorVersion() {
+  const subQuery = `SELECT MAX(color_version) FROM colors`;
+  const query = `
+    SELECT *
+    FROM colors
+    WHERE color_version = (${subQuery})
+  `;
+  return await runQuery(query);
+}
+
+async function selectMaxSavedVersion(tableName) {
+  const query = `SELECT MAX(saved_version) AS max_saved_version FROM \`${tableName}\``;
+  const results = await runQuery(query);
+  return results[0].max_saved_version || 0;
+}
 module.exports = {
   createTable,
   dropTable,
@@ -254,4 +180,5 @@ module.exports = {
   uploadColor,
   selectMaxColorVersion,
   selectRowsWithLatestColorVersion,
+  selectMaxSavedVersion,
 };

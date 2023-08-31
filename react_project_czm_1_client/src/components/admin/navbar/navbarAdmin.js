@@ -79,12 +79,9 @@ class NavbarAdmin extends Component {
       this.isNavbarDataServerEmpty = true;
     }
 
-    if (colors.length > 0) {
-      this.setState({ allColors: colors });
-    }
-
+    
     colors.forEach((color) => {
-      const properColor = JSON.parse(color.color);
+      let properColor = JSON.parse(color.color);
 
       if (
         Object.keys(backgroundColorForNavbar).length === 0 &&
@@ -164,7 +161,7 @@ class NavbarAdmin extends Component {
     const newNavbarData = [...navbarData];
 
     if (!this.isNavbarDataServerEmpty) {
-      if (this.testNavbarInfo === null) {
+      if (this.testNavbarInfo === null||this.testNavbarInfo.length!==navbarData.length) {
         this.testNavbarInfo = navbarData.map((item) => ({ ...item }));
       }
 
@@ -349,8 +346,8 @@ class NavbarAdmin extends Component {
     } = this.state;
     let imageSrc = "";
     let latestFileInfoForLogo = latestFileInfoForLogos[0];
-    if (latestFileInfoForLogo && latestFileInfoForLogo.fileExtention) {
-      imageSrc = `data:${latestFileInfoForLogo.fileExtention};base64,${latestFileInfoForLogo.fileBase64}`;
+    if (latestFileInfoForLogo && latestFileInfoForLogo.fileExtension) {
+      imageSrc = `data:${latestFileInfoForLogo.fileExtension};base64,${latestFileInfoForLogo.fileBase64}`;
     }
     const navbarStyle = backgroundColorForNavbar && {
       backgroundColor: `rgba(${backgroundColorForNavbar.r}, ${backgroundColorForNavbar.g}, ${backgroundColorForNavbar.b}, ${backgroundColorForNavbar.a})`,

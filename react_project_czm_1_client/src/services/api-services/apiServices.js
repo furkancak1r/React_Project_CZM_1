@@ -29,9 +29,7 @@ export const updateNavbarData = async (data) => {
       },
       body: JSON.stringify(data),
     });
-    console.log("Response from the server:", response);
     const textResponse = await response.text();
-    console.log("Text response from the server:", textResponse);
     return JSON.parse(textResponse);
   } catch (error) {
     console.error("Error updating Navbar data:", error);
@@ -49,7 +47,6 @@ export const sendAdminInfo = async (username, password) => {
     });
     console.log("Response from the server:", response);
     const textResponse = await response.text();
-    console.log("Text response from the server:", textResponse);
     return JSON.parse(textResponse);
   } catch (error) {
     console.error("Error sending admin info:", error);
@@ -90,19 +87,25 @@ export const translateService = async (text, targetLanguage) => {
 
 export const fetchUploadFile = async (
   fileName,
-  fileExtention,
+  fileExtension,
   location,
-  fileBase64
+  fileBase64,
+  savedVersion
 ) => {
-  const apiUrl = urls[3];
-
+  const toSend = JSON.stringify({
+    fileName,
+    fileExtension,
+    location,
+    fileBase64,
+    savedVersion,
+  });
   try {
-    const response = await fetch(apiUrl, {
+    const response = await fetch(urls[3], {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ fileName, fileExtention, location, fileBase64 }),
+      body: toSend,
     });
 
     const data = await response.json();
@@ -152,15 +155,14 @@ export const fetchMaxColorVersion = async () => {
     throw error;
   }
 };
-export const uploadAllColors = async (allColors) => {
+export const uploadAllColors = async (allColors, savedVersion) => {
   const apiUrlForUploadColor = urls[6];
-
   try {
     const maxColorVersion = await fetchMaxColorVersion();
     const newColorVersion = Number(maxColorVersion) + 1;
 
     const responsePromises = [];
-    
+
     for (const location in allColors) {
       const color = allColors[location];
       const responsePromise = await fetch(apiUrlForUploadColor, {
@@ -168,7 +170,12 @@ export const uploadAllColors = async (allColors) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ location, color, newColorVersion }),
+        body: JSON.stringify({
+          location,
+          color,
+          newColorVersion,
+          savedVersion,
+        }),
       });
 
       responsePromises.push(responsePromise);
@@ -185,7 +192,6 @@ export const uploadAllColors = async (allColors) => {
         console.error("Error parsing response:", error);
       }
     }
-
     return responseData;
   } catch (error) {
     console.error("Error uploading colors:", error);
@@ -208,6 +214,26 @@ export const fetchColorData = async () => {
     return data;
   } catch (error) {
     console.error("Error fetching max color version:", error);
+    throw error;
+  }
+};
+
+export const fetchMaxSavedVersion = async (tableName) => {
+  const apiUrlForMaxColorVersion = urls[8];
+
+  try {
+    const response = await fetch(apiUrlForMaxColorVersion, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ tableName }),
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching max table saved version:", error);
     throw error;
   }
 };

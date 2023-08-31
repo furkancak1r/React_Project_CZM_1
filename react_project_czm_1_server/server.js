@@ -45,19 +45,12 @@ app.post("/sqldata/droptable", (req, res) => {
 });
 
 app.post("/sqldata/insertrow", (req, res) => {
-  const { table_names, columns, values } = req.body;
-  mysqlFunctions
-    .selectMaxTitleVersion(table_names[0])
-    .then((max_title_version) => {
-      mysqlFunctions.insertRow(
-        table_names[0],
-        columns[0],
-        values,
-        max_title_version
-      );
+  const { values, savedVersion } = req.body;
+  mysqlFunctions.selectMaxTitleVersion("navbar").then((max_title_version) => {
+    mysqlFunctions.insertRow(values, max_title_version, savedVersion);
 
-      res.json({ status: "success" });
-    });
+    res.json({ status: "success" });
+  });
 });
 
 app.post("/sqldata/selectRowsWithLatestTitleVersion", async (req, res) => {
@@ -112,16 +105,18 @@ app.post("/api/adminLogin", async (req, res) => {
 });
 
 app.post("/sqldata/uploadFile", async (req, res) => {
-  const { fileName, fileExtention, location, fileBase64 } = req.body;
+  const { fileName, fileExtension, location, fileBase64, savedVersion } =
+    req.body;
+
 
   try {
     const response = await mysqlFunctions.uploadFile(
       fileName,
-      fileExtention,
+      fileExtension,
       location,
-      fileBase64
+      fileBase64,
+      savedVersion
     );
-
     res.json(response);
   } catch (error) {
     console.error("Dosya yüklenirken bir hata oluştu:", error);
@@ -173,14 +168,13 @@ app.get("/sqldata/fetchMaxColorVersion", async (req, res) => {
 });
 
 app.post("/sqldata/uploadColor", async (req, res) => {
-  const { location, color ,newColorVersion } = req.body;
+  const { location, color, newColorVersion, savedVersion } = req.body;
   try {
-   
-
     const response = await mysqlFunctions.uploadColor(
       location,
       color,
-      newColorVersion
+      newColorVersion,
+      savedVersion
     );
     res.json(response);
   } catch (error) {
@@ -199,7 +193,16 @@ app.get("/sqldata/selectRowsWithLatestColorVersion", async (req, res) => {
   }
 });
 
-
+app.post("/sqldata/selectMaxSavedVersion", async (req, res) => {
+  const { tableName } = req.body;
+  try {
+    const response = await mysqlFunctions.selectMaxSavedVersion(tableName);
+    res.json(response);
+  } catch (error) {
+    console.error("Max saved_version alınırken bir hata oluştu:", error);
+    res.status(500).json({ error: "İçsel sunucu hatası" });
+  }
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

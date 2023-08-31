@@ -1,5 +1,5 @@
 import { fetchUploadFile } from "../api-services/apiServices";
-export const uploadFile = async (file, location) => {
+export const uploadFile = async (file, location,savedVersion) => {
   if (!file) {
     return;
   }
@@ -8,7 +8,7 @@ export const uploadFile = async (file, location) => {
     const fileReader = new FileReader();
     fileReader.onload = async () => {
       const fileBase64 = fileReader.result.split(",")[1];
-      await fetchUploadFile(file.name, file.type, location, fileBase64);
+      await fetchUploadFile(file.name, file.type, location, fileBase64,savedVersion);
     };
 
     fileReader.readAsDataURL(file);

@@ -6,11 +6,10 @@ const urls = [
   `${localhost}/api/adminLogin`,
   `${localhost}/sqldata/uploadFile`,
   `${localhost}/sqldata/getLatestFileVersionsByLocation`,
-  `${localhost}/sqldata/fetchMaxColorVersion`, 
-  `${localhost}/sqldata/uploadColor`, 
-  `${localhost}/sqldata/selectRowsWithLatestColorVersion`, 
-
-  
+  `${localhost}/sqldata/fetchMaxColorVersion`,
+  `${localhost}/sqldata/uploadColor`,
+  `${localhost}/sqldata/selectRowsWithLatestColorVersion`,
+  `${localhost}/sqldata/selectMaxSavedVersion`,
 ];
 
 export default urls;

@@ -49,7 +49,7 @@ class Sidebar extends Component {
                 ></i>
               </div>
               <img
-                src={`data:${fileInfo.fileExtention};base64,${fileInfo.fileBase64}`}
+                src={`data:${fileInfo.fileExtension};base64,${fileInfo.fileBase64}`}
                 alt={`Screenshot ${index + 1}`}
                 onClick={() => {
                   if (enlargedImages[index]) {
