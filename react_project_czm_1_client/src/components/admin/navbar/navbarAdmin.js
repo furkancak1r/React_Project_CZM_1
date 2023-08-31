@@ -35,6 +35,7 @@ class NavbarAdmin extends Component {
       backgroundColorForNavbar: {},
       colorForHover: {},
       allColors: {},
+      selectedSavedVersion: null,
     };
     this.editableRef = null;
     this.inputRef = null;
@@ -43,6 +44,7 @@ class NavbarAdmin extends Component {
     this.handleSave = this.handleSave.bind(this);
     this.handleChangeComplete = this.handleChangeComplete.bind(this);
     this.handleColorSelected = this.handleColorSelected.bind(this);
+    this.selectedSavedVersionFn = this.selectedSavedVersionFn.bind(this);
   }
 
   componentDidMount() {
@@ -79,7 +81,6 @@ class NavbarAdmin extends Component {
       this.isNavbarDataServerEmpty = true;
     }
 
-    
     colors.forEach((color) => {
       let properColor = JSON.parse(color.color);
 
@@ -161,7 +162,10 @@ class NavbarAdmin extends Component {
     const newNavbarData = [...navbarData];
 
     if (!this.isNavbarDataServerEmpty) {
-      if (this.testNavbarInfo === null||this.testNavbarInfo.length!==navbarData.length) {
+      if (
+        this.testNavbarInfo === null ||
+        this.testNavbarInfo.length !== navbarData.length
+      ) {
         this.testNavbarInfo = navbarData.map((item) => ({ ...item }));
       }
 
@@ -313,6 +317,10 @@ class NavbarAdmin extends Component {
 
   hoverRemove = (e) => {
     e.target.style.color = "";
+  };
+  selectedSavedVersionFn = (selectedSavedVersionParam) => {
+    this.setState({ selectedSavedVersion: selectedSavedVersionParam });
+    console.log("selectedSavedVersion:", selectedSavedVersionParam);
   };
   renderSaveInstruction() {
     const { changesPending, savedSuccessMessage } = this.state;
@@ -471,6 +479,7 @@ class NavbarAdmin extends Component {
             showSidebar={showSidebar}
             latestFilesInfosForScreenshots={latestFilesInfosForScreenshots}
             updateSidebarRef={this.updateSidebarRef}
+            selectedSavedVersionFn={this.selectedSavedVersionFn}
           />{" "}
           <div className="colorPalette">
             {showColorPalette && (

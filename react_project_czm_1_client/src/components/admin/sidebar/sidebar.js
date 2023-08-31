@@ -19,9 +19,19 @@ class Sidebar extends Component {
     enlargedImages[index] = !enlargedImages[index];
     this.setState({ enlargedImages });
   };
+  setSavedVersionToProp = (index) => {
+    const { latestFilesInfosForScreenshots } = this.props;
+    const selectedSavedVersion =
+      latestFilesInfosForScreenshots[index].saved_version;
+    this.props.selectedSavedVersionFn(selectedSavedVersion);
+  };
   render() {
     const { showSidebar, latestFilesInfosForScreenshots } = this.props;
     const { enlargedImages } = this.state;
+    console.log(
+      "latestFilesInfosForScreenshots:",
+      latestFilesInfosForScreenshots
+    );
     return (
       <div
         className={`sidebar ${showSidebar ? "active" : ""}`}
@@ -42,7 +52,10 @@ class Sidebar extends Component {
                   pointerEvents: enlargedImages[index] ? "none" : "auto",
                 }}
               >
-                <i className="bi bi-arrow-90deg-left"></i>
+                <i
+                  className="bi bi-arrow-90deg-left"
+                  onClick={() => this.setSavedVersionToProp(index)}
+                ></i>
                 <i
                   className="bi bi-arrows-fullscreen"
                   onClick={() => this.toggleEnlarged(index)}
