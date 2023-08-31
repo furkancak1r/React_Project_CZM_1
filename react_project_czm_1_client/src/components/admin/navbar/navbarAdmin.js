@@ -7,6 +7,8 @@ import "./navbarAdmin.css";
 import {
   addGlobalEventListeners,
   removeGlobalEventListeners,
+  bubbleAdd,
+  bubbleRemove,
 } from "../../../services/eventHandlers/eventHandlers.js";
 import { fetchLatestFileVersions } from "../../../services/api-services/apiServices";
 import "../../admin/sidebar/sidebar.css";
@@ -14,41 +16,37 @@ import { handleSaveAdminFn } from "../../../services/handleSaveAdmin/handleSaveA
 import Sidebar from "../sidebar/sidebar";
 import ColorPalette from "../colorPalette/colorPalette";
 class NavbarAdmin extends Component {
-  state = {
-    navbarData: [],
-    latestFileInfoForLogos: [],
-    latestFilesInfosForScreenshots: [],
-    showSidebar: false,
-    uploadedLogoFile: null,
-    uploadedLogoSrc: null,
-    sidebarRef: null,
-    changesPending: false,
-    savedSuccessMessage: false,
-    showColorPalette: false,
-    background: {},
-    navbarColorSelected: true,
-    hoverColorSelected: false,
-    backgroundColorForNavbar: {},
-    colorForHover: {},
-    allColors: {},
-  };
   constructor(props) {
     super(props);
-    this.handleSave = this.handleSave.bind(this);
-
-    this.handleChangeComplete = this.handleChangeComplete.bind(this);
-
-    this.handleColorSelected = this.handleColorSelected.bind(this);
+    this.state = {
+      navbarData: [],
+      latestFileInfoForLogos: [],
+      latestFilesInfosForScreenshots: [],
+      showSidebar: false,
+      uploadedLogoFile: null,
+      uploadedLogoSrc: null,
+      sidebarRef: null,
+      changesPending: false,
+      savedSuccessMessage: false,
+      showColorPalette: false,
+      background: {},
+      navbarColorSelected: true,
+      hoverColorSelected: false,
+      backgroundColorForNavbar: {},
+      colorForHover: {},
+      allColors: {},
+    };
+    this.editableRef = null;
+    this.inputRef = null;
+    this.enlargedImageRef = null;
     this.testNavbarInfo = null;
+    this.handleSave = this.handleSave.bind(this);
+    this.handleChangeComplete = this.handleChangeComplete.bind(this);
+    this.handleColorSelected = this.handleColorSelected.bind(this);
   }
-
-  editableRef = null;
-  inputRef = null;
-  enlargedImageRef = null;
 
   componentDidMount() {
     this.fetchDataAndSetState();
-
     addGlobalEventListeners(this.handleClickText, this.handleKeyDown);
     addGlobalEventListeners(this.handleOutsideClick);
   }
@@ -58,67 +56,66 @@ class NavbarAdmin extends Component {
     removeGlobalEventListeners(this.handleOutsideClick);
   }
 
-  async fetchLatestFileInfoAndSetState(location, count, stateKey) {
+  fetchLatestFileInfoAndSetState = async (location, count, stateKey) => {
     try {
       const fileInfo = await fetchLatestFileVersions(location, count);
-      this.setState({ [stateKey]: fileInfo }, () => {});
+      this.setState({ [stateKey]: fileInfo });
     } catch (error) {
       console.error(`${stateKey} güncellenirken hata oluştu:`, error);
     }
-  }
+  };
 
   fetchAndSetNavbarData = async () => {
     const { backgroundColorForNavbar, colorForHover } = this.state;
-    await fetchNavbarData().then((data) => {
-      if (data && data.length > 0) {
-        this.setState({ navbarData: data });
-      } else {
-        this.isNavbarDataServerEmpty = true;
-      }
-    });
 
-    await fetchColorData().then((colors) => {
-      if (colors && colors.length > 0) {
-        this.setState({ allColors: colors });
-      }
-      for (const color of colors) {
-        let properColor = JSON.parse(color.color);
+    const [navbarData, colors] = await Promise.all([
+      fetchNavbarData(),
+      fetchColorData(),
+    ]);
 
-        if (
-          Object.keys(backgroundColorForNavbar).length === 0 &&
-          color.location === "backgroundColorForNavbar"
-        ) {
-          this.setState({
-            backgroundColorForNavbar: properColor,
-          });
-        }
-        if (
-          Object.keys(colorForHover).length === 0 &&
-          color.location === "colorForHover"
-        ) {
-          this.setState({
-            colorForHover: properColor,
-          });
-        }
+    if (navbarData.length > 0) {
+      this.setState({ navbarData });
+    } else {
+      this.isNavbarDataServerEmpty = true;
+    }
+
+    if (colors.length > 0) {
+      this.setState({ allColors: colors });
+    }
+
+    colors.forEach((color) => {
+      const properColor = JSON.parse(color.color);
+
+      if (
+        Object.keys(backgroundColorForNavbar).length === 0 &&
+        color.location === "backgroundColorForNavbar"
+      ) {
+        this.setState({ backgroundColorForNavbar: properColor });
+      }
+      if (
+        Object.keys(colorForHover).length === 0 &&
+        color.location === "colorForHover"
+      ) {
+        this.setState({ colorForHover: properColor });
       }
     });
   };
 
   async fetchAndSetLatestFileInfo() {
-    await this.fetchLatestFileInfoAndSetState(
-      "logo",
-      1,
-      "latestFileInfoForLogos"
-    );
-    await this.fetchLatestFileInfoAndSetState(
-      "screenshots",
-      4,
-      "latestFilesInfosForScreenshots"
-    );
+    await Promise.all([
+      this.fetchLatestFileInfoAndSetState("logo", 1, "latestFileInfoForLogos"),
+      this.fetchLatestFileInfoAndSetState(
+        "screenshots",
+        4,
+        "latestFilesInfosForScreenshots"
+      ),
+    ]);
   }
   async fetchDataAndSetState() {
-    await this.fetchAndSetNavbarData();
-    await this.fetchAndSetLatestFileInfo();
+    await Promise.all([
+      this.fetchAndSetNavbarData(),
+      this.fetchAndSetLatestFileInfo(),
+    ]);
   }
 
   handleClickText = (event) => {
@@ -132,8 +129,9 @@ class NavbarAdmin extends Component {
     }
   };
   handleOutsideClick = (event) => {
+    const { showSidebar, showColorPalette } = this.state;
     if (
-      this.state.showSidebar &&
+      showSidebar &&
       this.sidebarRef &&
       !this.sidebarRef.contains(event.target)
     ) {
@@ -142,7 +140,7 @@ class NavbarAdmin extends Component {
     const colorPalette = document.querySelector(".colorPalette");
     const isClickInsidePalette = colorPalette.contains(event.target);
 
-    if (this.state.showColorPalette && !isClickInsidePalette) {
+    if (showColorPalette && !isClickInsidePalette) {
       this.setState({ showColorPalette: false });
     }
   };
@@ -242,21 +240,12 @@ class NavbarAdmin extends Component {
       this.setState({ savedSuccessMessage: true });
       setTimeout(() => {
         this.setState({ savedSuccessMessage: false });
-      }, 3000); // 3000 milliseconds = 3 seconds
+      }, 3000);
     } catch (error) {
       console.error("Hata:", error);
       this.setState({ savedSuccessMessage: false });
     }
   };
-
-  bubbleAdd() {
-    const bubble = document.getElementById("bubble");
-    bubble.style.visibility = "visible";
-  }
-  bubbleRemove() {
-    const bubble = document.getElementById("bubble");
-    bubble.style.visibility = "hidden";
-  }
 
   toggleSidebar = () => {
     this.setState((prevState) => ({
@@ -299,7 +288,7 @@ class NavbarAdmin extends Component {
         },
         changesPending: true,
       });
-    } 
+    }
   };
 
   handleColorSelected = (selected) => {
@@ -328,6 +317,23 @@ class NavbarAdmin extends Component {
   hoverRemove = (e) => {
     e.target.style.color = "";
   };
+  renderSaveInstruction() {
+    const { changesPending, savedSuccessMessage } = this.state;
+    const classNames = `save-instruction ${changesPending ? "info" : ""} ${
+      savedSuccessMessage ? "success" : ""
+    }`;
+
+    return (
+      <div className={classNames}>
+        {changesPending && (
+          <div>
+            Değişiklikleri kaydetmek için lütfen kaydet butonuna tıklayın
+          </div>
+        )}
+        {savedSuccessMessage && <div>Değişiklikler başarıyla kaydedildi</div>}
+      </div>
+    );
+  }
   render() {
     const {
       navbarData,
@@ -336,7 +342,6 @@ class NavbarAdmin extends Component {
       latestFilesInfosForScreenshots,
       uploadedLogoSrc,
       changesPending,
-      savedSuccessMessage,
       showColorPalette,
       background,
       backgroundColorForNavbar,
@@ -358,18 +363,7 @@ class NavbarAdmin extends Component {
 
     return (
       <div>
-        <div
-          className={`save-instruction ${changesPending ? "info" : ""} ${
-            savedSuccessMessage ? "success" : ""
-          }`}
-        >
-          {changesPending && (
-            <div>
-              Değişiklikleri kaydetmek için lütfen kaydet butonuna tıklayın
-            </div>
-          )}
-          {savedSuccessMessage && <div>Değişiklikler başarıyla kaydedildi</div>}
-        </div>
+        {this.renderSaveInstruction()}
 
         <nav
           className="navbar navbar-expand-lg navbar-light "
@@ -377,8 +371,8 @@ class NavbarAdmin extends Component {
         >
           <div
             className="navbar-brand"
-            onMouseEnter={this.bubbleAdd}
-            onMouseLeave={this.bubbleRemove}
+            onMouseEnter={bubbleAdd}
+            onMouseLeave={bubbleRemove}
             onDoubleClick={this.handleDoubleClicked}
           >
             {uploadedLogoSrc ? (

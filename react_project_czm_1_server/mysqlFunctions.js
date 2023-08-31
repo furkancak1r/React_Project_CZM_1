@@ -19,8 +19,6 @@ function createTable(table_names) {
   connection.query(createTableQuery, function (err) {
     if (err) {
       console.error("Tablo oluşturulurken bir hata oluştu:", err);
-    } else {
-      console.log(`"${table_names}" tablosu başarıyla oluşturuldu`);
     }
   });
 }
@@ -31,8 +29,6 @@ function dropTable(table_names) {
   connection.query(dropTableQuery, function (err) {
     if (err) {
       console.error("Tablo silinirken bir hata oluştu:", err);
-    } else {
-      console.log(`"${table_names}" tablosu başarıyla silindi`);
     }
   });
 }
@@ -50,16 +46,11 @@ function insertRow(table_name, columns, values, title_version) {
     }
   }
 
-  console.log(`Executing query: ${insertRowQuery}`);
   connection.query(insertRowQuery, function (err) {
     if (err) {
       console.error(
         `An error occurred while inserting rows into the "${table_name}" table:`,
         err
-      );
-    } else {
-      console.log(
-        `Rows were successfully inserted into the "${table_name}" table with the following values: ${values}`
       );
     }
   });
@@ -262,5 +253,5 @@ module.exports = {
   getFileByVersionAndLocation,
   uploadColor,
   selectMaxColorVersion,
-  selectRowsWithLatestColorVersion
+  selectRowsWithLatestColorVersion,
 };
