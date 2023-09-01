@@ -82,21 +82,15 @@ app.post("/sqldata/selectrows", async (req, res) => {
 });
 
 app.post("/api/adminLogin", async (req, res) => {
-  const { username, password } = req.body;
+  const { username } = req.body;
 
   try {
     const user = await mysqlFunctions.findByUsername(username);
 
     if (!user) {
       return res.status(401).json({ message: "Invalid username or password" });
-    }
-
-    const isPasswordMatch = bcrypt.compare(password, user.passwordHash);
-
-    if (isPasswordMatch) {
-      return res.status(200).json({ message: "Login successful" });
     } else {
-      return res.status(401).json({ message: "Invalid username or password" });
+      return res.json(user.passwordHash); 
     }
   } catch (error) {
     console.error("Error during admin login:", error);
@@ -104,10 +98,10 @@ app.post("/api/adminLogin", async (req, res) => {
   }
 });
 
+
 app.post("/sqldata/uploadFile", async (req, res) => {
   const { fileName, fileExtension, location, fileBase64, savedVersion } =
     req.body;
-
 
   try {
     const response = await mysqlFunctions.uploadFile(
@@ -200,6 +194,23 @@ app.post("/sqldata/selectMaxSavedVersion", async (req, res) => {
     res.json(response);
   } catch (error) {
     console.error("Max saved_version alınırken bir hata oluştu:", error);
+    res.status(500).json({ error: "İçsel sunucu hatası" });
+  }
+});
+
+app.post("/sqldata/selectTableBySavedVersion", async (req, res) => {
+  const { tableName, savedVersion } = req.body;
+  try {
+    const response = await mysqlFunctions.selectTableBySavedVersion(
+      tableName,
+      savedVersion
+    );
+    res.json(response);
+  } catch (error) {
+    console.error(
+      "Max saved_version tablo infosu alınırken bir hata oluştu:",
+      error
+    );
     res.status(500).json({ error: "İçsel sunucu hatası" });
   }
 });

@@ -17,20 +17,16 @@ function AdminPanel() {
   const handleAdminPasswordChange = (event) => {
     setPassword(event.target.value);
   };
-    
+
   const handleAdminSubmit = async (event) => {
     event.preventDefault();
-
-    const hashedPassword = bcrypt.hashSync(password, 10);
-
     try {
-      const response = await sendAdminInfo(username, hashedPassword);
+      const response = await sendAdminInfo(username);
+      let compareResult = await bcrypt.compare(password, response);
 
-      if (response.message === "Login successful") {
-        console.log("Login successful");
+      if (compareResult) {
         navigate("/admin/homepage");
         localStorage.setItem("isLoggedIn", true);
-
       } else {
         alert("Incorrect username or password");
       }

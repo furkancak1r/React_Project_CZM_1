@@ -10,9 +10,11 @@ export default class ColorPalette extends Component {
       colorForHover,
       navbarStyle,
     } = this.props;
-    let colorForHoverApply = {
-      backgroundColor: `rgba(${colorForHover.r}, ${colorForHover.g}, ${colorForHover.b}, ${colorForHover.a})`,
-    };
+    let colorForHoverApply = colorForHover
+      ? {
+          backgroundColor: `rgba(${colorForHover.r}, ${colorForHover.g}, ${colorForHover.b}, ${colorForHover.a})`,
+        }
+      : "";
 
     return (
       <div

@@ -36,16 +36,15 @@ export const updateNavbarData = async (data) => {
   }
 };
 
-export const sendAdminInfo = async (username, password) => {
+export const sendAdminInfo = async (username) => {
   try {
     const response = await fetch(urls[2], {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username }),
     });
-    console.log("Response from the server:", response);
     const textResponse = await response.text();
     return JSON.parse(textResponse);
   } catch (error) {
@@ -213,7 +212,7 @@ export const fetchColorData = async () => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error fetching max color version:", error);
+    console.error("Error fetching max color version data:", error);
     throw error;
   }
 };
@@ -234,6 +233,27 @@ export const fetchMaxSavedVersion = async (tableName) => {
     return data;
   } catch (error) {
     console.error("Error fetching max table saved version:", error);
+    throw error;
+  }
+};
+
+export const selectTableBySavedVersion = async (tableName, savedVersion) => {
+  try {
+    const response = await fetch(urls[9], {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ tableName, savedVersion }),
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(
+      "Error fetching table infos for savedVersion version:",
+      error
+    );
     throw error;
   }
 };

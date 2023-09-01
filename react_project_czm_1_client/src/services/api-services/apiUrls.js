@@ -10,6 +10,7 @@ const urls = [
   `${localhost}/sqldata/uploadColor`,
   `${localhost}/sqldata/selectRowsWithLatestColorVersion`,
   `${localhost}/sqldata/selectMaxSavedVersion`,
+  `${localhost}/sqldata/selectTableBySavedVersion`,
 ];
 
 export default urls;

@@ -166,6 +166,15 @@ async function selectMaxSavedVersion(tableName) {
   const results = await runQuery(query);
   return results[0].max_saved_version || 0;
 }
+async function selectTableBySavedVersion(tableName, savedVersion) {
+  const query = `
+    SELECT *
+    FROM ${tableName}
+    WHERE saved_version = ?
+  `;
+  return await runQuery(query, [savedVersion]);
+}
+
 module.exports = {
   createTable,
   dropTable,
@@ -181,4 +190,5 @@ module.exports = {
   selectMaxColorVersion,
   selectRowsWithLatestColorVersion,
   selectMaxSavedVersion,
+  selectTableBySavedVersion
 };
