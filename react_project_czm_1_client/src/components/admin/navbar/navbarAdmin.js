@@ -16,6 +16,7 @@ import { handleSaveAdminFn } from "../../../services/handleSaveAdmin/handleSaveA
 import Sidebar from "../sidebar/sidebar";
 import ColorPalette from "../colorPalette/colorPalette";
 import fetchSavedVersionData from "../../../services/fetchSavedVersionData/fetchSavedVersionData";
+import { processColors } from "../../../services/colorsProcessing/colorsProcessing";
 class NavbarAdmin extends Component {
   constructor(props) {
     super(props);
@@ -69,6 +70,12 @@ class NavbarAdmin extends Component {
   };
 
   fetchAndSetNavbarData = async () => {
+    const {
+      colorsProcessed,
+      allColors,
+      backgroundColorForNavbar,
+      colorForHover,
+    } = this.state;
     const [navbarData, colors] = await Promise.all([
       fetchNavbarData(),
       fetchColorData(),
@@ -79,52 +86,22 @@ class NavbarAdmin extends Component {
     } else {
       this.isNavbarDataServerEmpty = true;
     }
-    if (!this.state.colorsProcessed) {
-      console.log("colors:", colors);
-      await this.processColors(colors);
-      this.setState({ colorsProcessed: true });
+    if (!colorsProcessed) {
+      processColors(colors, backgroundColorForNavbar, colorForHover).then(
+        (result) => {
+          this.setState({
+            colorsProcessed: true,
+            allColors: {
+              ...allColors,
+              backgroundColorForNavbar: result.defaultBackgroundColorin,
+              colorForHover: result.defaultHoverColorin,
+            },
+            backgroundColorForNavbar: result.defaultBackgroundColorin,
+            colorForHover: result.defaultHoverColorin,
+          });
+        }
+      );
     }
-  };
-
-  processColors = async (colors) => {
-    const { backgroundColorForNavbar, colorForHover, allColors } = this.state;
-
-    await colors.forEach((color) => {
-      let properColor = JSON.parse(color.color);
-      console.log(properColor);
-      if (
-        Object.keys(backgroundColorForNavbar).length === 0 &&
-        color.location === "backgroundColorForNavbar"
-      ) {
-        this.setState({
-          backgroundColorForNavbar: properColor,
-        });
-      } else {
-        this.setState({
-          backgroundColorForNavbar: { r: 248, g: 249, b: 250, a: 1 },
-          allColors: {
-            ...allColors,
-            backgroundColorForNavbar: { r: 248, g: 249, b: 250, a: 1 },
-          },
-        });
-      }
-      if (
-        Object.keys(colorForHover).length === 0 &&
-        color.location === "colorForHover"
-      ) {
-        this.setState({
-          colorForHover: properColor,
-        });
-      } else {
-        this.setState({
-          allColors: {
-            ...allColors,
-            colorForHover: { r: 0, g: 123, b: 255, a: 1 },
-          },
-          colorForHover: { r: 0, g: 123, b: 255, a: 1 },
-        });
-      }
-    });
   };
 
   async fetchAndSetLatestFileInfo() {
@@ -305,7 +282,6 @@ class NavbarAdmin extends Component {
       hoverColorSelected,
       allColors,
     } = this.state;
-
     if (navbarColorSelected) {
       this.setState({
         backgroundColorForNavbar: background,

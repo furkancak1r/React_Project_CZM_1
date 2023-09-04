@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import {
   fetchNavbarData,
   translateService,
+  fetchColorData,
+
 } from "../../../services/api-services/apiServices";
 import { Link } from "react-router-dom";
 import languageOptions from "../../../services/translator/languageOptions";
@@ -26,10 +28,15 @@ class Navbar extends Component {
     }
   }
 
-  fetchAndSetNavbarData = () => {
-    fetchNavbarData().then((data) => {
-      this.setState({ navbarData: data });
-    });
+  fetchAndSetNavbarData = async() => {
+    const [navbarData, colors] = await Promise.all([
+      fetchNavbarData(),
+      fetchColorData(),
+    ]);
+    if (navbarData.length > 0) {
+      this.setState({ navbarData });
+    } 
+
   };
 
   translateText = async (text, targetLanguage) => {
