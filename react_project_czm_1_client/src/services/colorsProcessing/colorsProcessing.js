@@ -30,3 +30,19 @@ export async function processColors(
   });
   return { defaultBackgroundColorin, defaultHoverColorin };
 }
+
+export async function navbarStyleFn(backgroundColorForNavbar) {
+  const navbarStyle = backgroundColorForNavbar && {
+    backgroundColor: `rgba(${backgroundColorForNavbar.r}, ${backgroundColorForNavbar.g}, ${backgroundColorForNavbar.b}, ${backgroundColorForNavbar.a})`,
+  };
+  return navbarStyle;
+}
+
+export async function addIconStyleFn(backgroundColorForNavbar) {
+  const addIconStyle = backgroundColorForNavbar && {
+    background: `rgba(${backgroundColorForNavbar.r + 30}, ${
+      backgroundColorForNavbar.g
+    }, ${backgroundColorForNavbar.b}, ${backgroundColorForNavbar.a})`,
+  };
+  return addIconStyle;
+}

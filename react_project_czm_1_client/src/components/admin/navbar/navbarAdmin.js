@@ -9,6 +9,9 @@ import {
   removeGlobalEventListeners,
   bubbleAdd,
   bubbleRemove,
+  hoverAddFn,
+  hoverRemoveFn,
+  imageSrcFn,
 } from "../../../services/eventHandlers/eventHandlers.js";
 import { fetchLatestFileVersions } from "../../../services/api-services/apiServices";
 import "../../admin/sidebar/sidebar.css";
@@ -16,7 +19,12 @@ import { handleSaveAdminFn } from "../../../services/handleSaveAdmin/handleSaveA
 import Sidebar from "../sidebar/sidebar";
 import ColorPalette from "../colorPalette/colorPalette";
 import fetchSavedVersionData from "../../../services/fetchSavedVersionData/fetchSavedVersionData";
-import { processColors } from "../../../services/colorsProcessing/colorsProcessing";
+import {
+  processColors,
+  navbarStyleFn,
+  addIconStyleFn,
+} from "../../../services/colorsProcessing/colorsProcessing";
+
 class NavbarAdmin extends Component {
   constructor(props) {
     super(props);
@@ -37,7 +45,9 @@ class NavbarAdmin extends Component {
       backgroundColorForNavbar: {},
       colorForHover: {},
       allColors: {},
-      colorsProcessed: false,
+      addIconStyle: null,
+      navbarStyle: null,
+      imageSrc: null,
     };
     this.editableRef = null;
     this.inputRef = null;
@@ -59,23 +69,22 @@ class NavbarAdmin extends Component {
     removeGlobalEventListeners(this.handleClickText, this.handleKeyDown);
     removeGlobalEventListeners(this.handleOutsideClick);
   }
-
   fetchLatestFileInfoAndSetState = async (location, count, stateKey) => {
     try {
       const fileInfo = await fetchLatestFileVersions(location, count);
       this.setState({ [stateKey]: fileInfo });
+
+      if (count === 1) {
+        const data = imageSrcFn(fileInfo);
+        this.setState({ imageSrc: data });
+      }
     } catch (error) {
-      console.error(`${stateKey} güncellenirken hata oluştu:`, error);
+      console.error(`Hata oluştu while ${stateKey} güncellenirken:`, error);
     }
   };
 
   fetchAndSetNavbarData = async () => {
-    const {
-      colorsProcessed,
-      allColors,
-      backgroundColorForNavbar,
-      colorForHover,
-    } = this.state;
+    const { allColors, backgroundColorForNavbar, colorForHover } = this.state;
     const [navbarData, colors] = await Promise.all([
       fetchNavbarData(),
       fetchColorData(),
@@ -86,34 +95,54 @@ class NavbarAdmin extends Component {
     } else {
       this.isNavbarDataServerEmpty = true;
     }
-    if (!colorsProcessed) {
-      processColors(colors, backgroundColorForNavbar, colorForHover).then(
-        (result) => {
-          this.setState({
-            colorsProcessed: true,
-            allColors: {
-              ...allColors,
-              backgroundColorForNavbar: result.defaultBackgroundColorin,
-              colorForHover: result.defaultHoverColorin,
-            },
+
+    processColors(colors, backgroundColorForNavbar, colorForHover).then(
+      async (result) => {
+        this.setState({
+          colorsProcessed: true,
+          allColors: {
+            ...allColors,
             backgroundColorForNavbar: result.defaultBackgroundColorin,
             colorForHover: result.defaultHoverColorin,
-          });
-        }
-      );
+          },
+          backgroundColorForNavbar: result.defaultBackgroundColorin,
+          colorForHover: result.defaultHoverColorin,
+        });
+        await this.setStyleFn(result.defaultBackgroundColorin);
+      }
+    );
+  };
+  setStyleFn = async (bgColor) => {
+    try {
+      const navbarStyle = await navbarStyleFn(bgColor);
+      this.setState({ navbarStyle });
+
+      const addIconStyle = await addIconStyleFn(bgColor);
+      this.setState({ addIconStyle });
+    } catch (error) {
+      console.error("Stil güncellenirken hata oluştu:", error);
     }
   };
 
   async fetchAndSetLatestFileInfo() {
-    await Promise.all([
-      this.fetchLatestFileInfoAndSetState("logo", 1, "latestFileInfoForLogos"),
-      this.fetchLatestFileInfoAndSetState(
-        "screenshots",
-        4,
-        "latestFilesInfosForScreenshots"
-      ),
-    ]);
+    try {
+      await Promise.all([
+        this.fetchLatestFileInfoAndSetState(
+          "logo",
+          1,
+          "latestFileInfoForLogos"
+        ),
+        this.fetchLatestFileInfoAndSetState(
+          "screenshots",
+          4,
+          "latestFilesInfosForScreenshots"
+        ),
+      ]);
+    } catch (error) {
+      console.error("Error fetching and setting latest file info:", error);
+    }
   }
+
   async fetchDataAndSetState() {
     await Promise.all([
       this.fetchAndSetNavbarData(),
@@ -243,6 +272,7 @@ class NavbarAdmin extends Component {
 
     try {
       this.setState({ changesPending: false });
+      this.setState({ backgroundColorForNavbar: {}, colorForHover: {} });
       await handleSaveAdminFn(
         navbarData,
         uploadedLogoFile,
@@ -273,7 +303,7 @@ class NavbarAdmin extends Component {
     this.setState({ showColorPalette: true });
   };
 
-  handleChangeComplete = (color) => {
+  handleChangeComplete = async (color) => {
     this.setState({ background: color.rgb });
 
     const {
@@ -291,6 +321,7 @@ class NavbarAdmin extends Component {
         },
         changesPending: true,
       });
+      await this.setStyleFn(background);
     } else if (hoverColorSelected) {
       this.setState({
         colorForHover: background,
@@ -302,7 +333,7 @@ class NavbarAdmin extends Component {
       });
     }
   };
-
+  //kaydet sonrası bg color güncellenmiyor
   handleColorSelected = (selected) => {
     const { backgroundColorForNavbar, colorForHover } = this.state;
     if (selected === "navbar") {
@@ -321,13 +352,11 @@ class NavbarAdmin extends Component {
   };
   hoverAdd = (e) => {
     const { colorForHover } = this.state;
-    if (colorForHover && !e.target.className.includes("inactive")) {
-      e.target.style.color = `rgba(${colorForHover.r}, ${colorForHover.g}, ${colorForHover.b}, ${colorForHover.a})`;
-    }
+    hoverAddFn(e, colorForHover);
   };
 
   hoverRemove = (e) => {
-    e.target.style.color = "";
+    hoverRemoveFn(e);
   };
 
   selectedSavedVersionFn = async (selectedSavedVersionParam) => {
@@ -397,31 +426,17 @@ class NavbarAdmin extends Component {
       changesPending,
       showColorPalette,
       background,
-      backgroundColorForNavbar,
       colorForHover,
+      addIconStyle,
+      navbarStyle,
+      imageSrc,
     } = this.state;
-    let imageSrc = "";
-    let latestFileInfoForLogo = latestFileInfoForLogos[0];
-    if (latestFileInfoForLogo && latestFileInfoForLogo.fileExtension) {
-      imageSrc = `data:${latestFileInfoForLogo.fileExtension};base64,${latestFileInfoForLogo.fileBase64}`;
-    }
-    const navbarStyle = backgroundColorForNavbar && {
-      backgroundColor: `rgba(${backgroundColorForNavbar.r}, ${backgroundColorForNavbar.g}, ${backgroundColorForNavbar.b}, ${backgroundColorForNavbar.a})`,
-    };
-    const addIconStyle = backgroundColorForNavbar && {
-      background: `rgba(${backgroundColorForNavbar.r + 30}, ${
-        backgroundColorForNavbar.g
-      }, ${backgroundColorForNavbar.b}, ${backgroundColorForNavbar.a})`,
-    };
 
     return (
       <div>
         {this.renderSaveInstruction()}
 
-        <nav
-          className="navbar navbar-expand-lg navbar-light "
-          style={navbarStyle}
-        >
+        <nav className="navbar navbar-expand-lg " style={navbarStyle}>
           <div
             className="navbar-brand"
             onMouseEnter={bubbleAdd}
@@ -430,7 +445,7 @@ class NavbarAdmin extends Component {
           >
             {uploadedLogoSrc ? (
               <img src={uploadedLogoSrc} alt="Logo" />
-            ) : latestFileInfoForLogo ? (
+            ) : latestFileInfoForLogos[0] ? (
               <img src={imageSrc} alt="Logo" />
             ) : (
               <span
