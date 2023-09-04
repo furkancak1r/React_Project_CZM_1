@@ -3,6 +3,7 @@ import {
   fetchNavbarData,
   translateService,
   fetchColorData,
+  fetchLatestFileVersions,
 } from "../../../services/api-services/apiServices";
 import { Link } from "react-router-dom";
 import languageOptions from "../../../services/translator/languageOptions";
@@ -11,13 +12,14 @@ import {
   addIconStyleFn,
   navbarStyleFn,
 } from "../../../services/colorsProcessing/colorsProcessing";
-import { processColors } from "../../../services/colorsProcessing/colorsProcessing";
 import {
   hoverAddFn,
   hoverRemoveFn,
-  imageSrcFn
+  imageSrcFn,
 } from "../../../services/eventHandlers/eventHandlers";
-import { fetchLatestFileVersions } from "../../../services/api-services/apiServices";
+import { processColors } from "../../../services/colorsProcessing/colorsProcessing";
+
+
 class Navbar extends Component {
   state = {
     navbarData: null,
@@ -27,18 +29,13 @@ class Navbar extends Component {
     colorForHover: {},
     addIconStyle: null,
     navbarStyle: null,
+    imageSrc: null,
   };
 
-  componentDidMount() {
-    this.fetchAndSetNavbarData();
-  }
-
-  componentDidUpdate(prevState) {
-    if (
-      prevState.navbarData !== this.state.navbarData ||
-      prevState.selectedLanguage !== this.state.selectedLanguage
-    ) {
-      this.translateNavbarTitles();
+  async componentDidMount() {
+    await this.fetchAndSetNavbarData();
+    if (this.state.navbarData && this.state.navbarData.length > 0) {
+      await this.translateNavbarTitles();
     }
   }
 
@@ -50,7 +47,6 @@ class Navbar extends Component {
         fetchNavbarData(),
         fetchColorData(),
         fetchLatestFileVersions("logo", 1),
-
       ]);
 
       if (navbarData.length > 0) {
@@ -82,6 +78,7 @@ class Navbar extends Component {
       console.error("Error fetching and setting data:", error);
     }
   }
+
   fetchLatestFileInfoAndSetState = async (location, count, stateKey) => {
     try {
       const fileInfo = await fetchLatestFileVersions(location, count);
@@ -103,21 +100,35 @@ class Navbar extends Component {
 
   translateNavbarTitles = async () => {
     const { navbarData, selectedLanguage } = this.state;
+
+    if (!navbarData || navbarData.length === 0) {
+      console.error("Navbar data is empty or undefined.");
+      return;
+    }
+    console.log("selectedLanguageüst:",selectedLanguage);
+
     const translatedTitles = await Promise.all(
       navbarData.map(async (item) => {
         const translatedTitle = await this.translateText(
           item.title,
           selectedLanguage
         );
+        console.log("translatedTitle:",translatedTitle);
+        console.log("selectedLanguage:",selectedLanguage);
+
         return translatedTitle;
       })
     );
+
     this.setState({ translatedTitles });
   };
 
-  handleLanguageChange = (event) => {
-    const selectedLanguage = event.target.value;
+  handleLanguageChange = async (e) => {
+    const selectedLanguage = e.target.value;
+    console.log("handleLanguageChange selectedLanguage: ",selectedLanguage);
     this.setState({ selectedLanguage });
+    // hemen set ediyor translateNavbarTitles()'a set edilmeyen default tr değeri gidiyor bu yüzden güncellenmiyor fonksiyon
+    await this.translateNavbarTitles();
   };
 
   hoverAdd = (e) => {
@@ -154,9 +165,8 @@ class Navbar extends Component {
         </Link>
         <div className="container">
           <div
-            className={`belowContainer ${
-              navbarData.length <= 6 ? "showPadding wide" : "showPadding"
-            }`}
+            className={`belowContainer ${navbarData.length <= 6 ? "showPadding wide" : "showPadding"
+              }`}
           >
             {navbarData.map((item, index) => (
               <Link
@@ -175,7 +185,7 @@ class Navbar extends Component {
               className="form-select"
               name="language"
               value={selectedLanguage}
-              onChange={this.handleLanguageChange}
+              onChange={(e)=>{this.handleLanguageChange(e)}}
             >
               {languageOptions.map((option) => (
                 <option key={option.value} value={option.value}>

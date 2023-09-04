@@ -2,10 +2,9 @@
 
 // config.js dosyası
 const translateConfig = {
-    key : "32dc595f16734a3ba4001b7e2641dad4",
-    endpoint : "https://api.cognitive.microsofttranslator.com",
+    key : "d576334872104d2383e42c2b441fa37b",
+    endpoint : "https://api.cognitive.microsofttranslator.com/",
     location : "northeurope"
  };
  
  module.exports = translateConfig;
- 
