@@ -1,10 +1,13 @@
 // Here is the part where the MySQL connection values are stored.
 
 // config.js dosyası
+require('dotenv').config({path: './config.env'});
+
 const translateConfig = {
-    key : "d576334872104d2383e42c2b441fa37b",
-    endpoint : "https://api.cognitive.microsofttranslator.com/",
-    location : "northeurope"
- };
- 
- module.exports = translateConfig;
+  key: process.env.TRANSLATE_KEY,
+  endpoint: process.env.TRANSLATE_ENDPOINT,
+  location: process.env.TRANSLATE_LOCATION,
+};
+
+module.exports = translateConfig;
+

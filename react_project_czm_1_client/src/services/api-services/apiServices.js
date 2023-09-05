@@ -57,7 +57,7 @@ export const translateService = async (text, targetLanguage) => {
   const endpoint = translateConfig.endpoint;
   const location = translateConfig.location;
 
-  const apiUrl = `${endpoint}/translate?api-version=3.0&from=en&to=${targetLanguage}`;
+  const apiUrl = `${endpoint}/translate?api-version=3.0&to=${targetLanguage}`;
   const requestData = [
     {
       text: text,
