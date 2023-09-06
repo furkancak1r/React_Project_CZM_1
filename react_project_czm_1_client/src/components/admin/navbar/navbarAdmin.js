@@ -7,23 +7,23 @@ import "./navbarAdmin.css";
 import {
   addGlobalEventListeners,
   removeGlobalEventListeners,
-  bubbleAdd,
-  bubbleRemove,
+  toggleVisibility,
   hoverAddFn,
   hoverRemoveFn,
   imageSrcFn,
 } from "../../../services/eventHandlers/eventHandlers.js";
+import {
+  processColors,
+  navbarStyleFn,
+  addIconStyleFn,
+} from "../../../services/colorsProcessing/colorsProcessing";
 import { fetchLatestFileVersions } from "../../../services/api-services/apiServices";
 import "../../admin/sidebar/sidebar.css";
 import { handleSaveAdminFn } from "../../../services/handleSaveAdmin/handleSaveAdmin";
 import Sidebar from "../sidebar/sidebar";
 import ColorPalette from "../colorPalette/colorPalette";
 import fetchSavedVersionData from "../../../services/fetchSavedVersionData/fetchSavedVersionData";
-import {
-  processColors,
-  navbarStyleFn,
-  addIconStyleFn,
-} from "../../../services/colorsProcessing/colorsProcessing";
+import { handleDoubleClickedFn } from "../../../services/imageSelect/imageSelect";
 
 class NavbarAdmin extends Component {
   constructor(props) {
@@ -63,6 +63,7 @@ class NavbarAdmin extends Component {
     this.fetchDataAndSetState();
     addGlobalEventListeners(this.handleClickText, this.handleKeyDown);
     addGlobalEventListeners(this.handleOutsideClick);
+   this.defaultBubbleFn();
   }
 
   componentWillUnmount() {
@@ -96,6 +97,7 @@ class NavbarAdmin extends Component {
       this.isNavbarDataServerEmpty = true;
     }
 
+
     processColors(colors, backgroundColorForNavbar, colorForHover).then(
       async (result) => {
         this.setState({
@@ -112,6 +114,7 @@ class NavbarAdmin extends Component {
       }
     );
   };
+  
   setStyleFn = async (bgColor) => {
     try {
       const navbarStyle = await navbarStyleFn(bgColor);
@@ -124,6 +127,14 @@ class NavbarAdmin extends Component {
     }
   };
 
+  defaultBubbleFn =  () => {
+    try {
+       toggleVisibility("bubbleNavbar", false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
   async fetchAndSetLatestFileInfo() {
     try {
       await Promise.all([
@@ -241,25 +252,17 @@ class NavbarAdmin extends Component {
   };
 
   handleDoubleClicked = () => {
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.accept = "image/*";
-    fileInput.click();
-    fileInput.addEventListener("change", () => {
-      const selectedFile = fileInput.files[0];
-      if (selectedFile) {
-        const fileReader = new FileReader();
-        fileReader.onload = () => {
-          const uploadedLogoSrc = fileReader.result;
-          this.setState({
-            uploadedLogoFile: selectedFile,
-            uploadedLogoSrc: uploadedLogoSrc,
-            changesPending: true,
-          });
-        };
-        fileReader.readAsDataURL(selectedFile);
-      }
-    });
+    handleDoubleClickedFn()
+      .then((result) => {
+        this.setState({
+          uploadedLogoFile: result.uploadedLogoFile,
+          uploadedLogoSrc: result.uploadedLogoSrc,
+          changesPending: true,
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   handleSave = async () => {
@@ -439,8 +442,8 @@ class NavbarAdmin extends Component {
         <nav className="navbar navbar-expand-lg " style={navbarStyle}>
           <div
             className="navbar-brand"
-            onMouseEnter={bubbleAdd}
-            onMouseLeave={bubbleRemove}
+            onMouseEnter={() => toggleVisibility("bubbleNavbar", true)}
+            onMouseLeave={() => toggleVisibility("bubbleNavbar", false)}
             onDoubleClick={this.handleDoubleClicked}
           >
             {uploadedLogoSrc ? (
@@ -457,8 +460,7 @@ class NavbarAdmin extends Component {
                 +
               </span>
             )}
-
-            <div id="bubble" className="bubble">
+            <div id="bubbleNavbar" className="bubbleNavbar">
               Max Genişlik: "110px", Max Yükseklik: "80px"
             </div>
           </div>

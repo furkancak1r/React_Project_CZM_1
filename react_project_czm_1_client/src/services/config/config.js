@@ -1,4 +1,3 @@
-
 const translateConfig = {
   key: process.env.REACT_APP_TRANSLATE_KEY, 
   endpoint: process.env.REACT_APP_TRANSLATE_ENDPOINT,

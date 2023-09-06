@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom"; // Eğer projenizde react-router kullanıyorsanız
 import NavbarAdmin from "../navbar/navbarAdmin";
 import { useNavigate } from "react-router-dom";
-
+import Slider from "../slider/slider";
 function HomePageAdmin() {
   let isLoggedIn = localStorage.getItem("isLoggedIn");
   const navigate = useNavigate();
@@ -21,6 +21,7 @@ function HomePageAdmin() {
       <div>
         <NavbarAdmin />
         <Link to="/">Go to User Page</Link>
+        <Slider/>
         <h5
           onClick={handleClick}
           style={{

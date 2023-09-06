@@ -23,7 +23,9 @@
   font-size: 18px;
   transition: color 0.3s ease-in-out;
 }
-
+.bubbleNavbar{
+  font-size: 16px;
+}
 .item-title {
   margin: 0 20px;
   font-weight: 600;

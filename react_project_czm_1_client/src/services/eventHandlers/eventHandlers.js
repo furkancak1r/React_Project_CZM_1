@@ -8,14 +8,9 @@ export const removeGlobalEventListeners = (clickHandler, keyDownHandler) => {
   document.removeEventListener("keydown", keyDownHandler);
 };
 
-export const bubbleAdd = () => {
-  const bubble = document.getElementById("bubble");
-  bubble.style.visibility = "visible";
-};
-
-export const bubbleRemove = () => {
-  const bubble = document.getElementById("bubble");
-  bubble.style.visibility = "hidden";
+export const toggleVisibility = (id, visible) => {
+  const element = document.getElementById(id);
+  element.style.visibility = visible ? "visible" : "hidden";
 };
 
 export const hoverAddFn = (e,colorForHover) => {

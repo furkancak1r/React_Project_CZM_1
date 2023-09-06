@@ -1,5 +1,5 @@
 import urls from "./apiUrls";
-import translateConfig from "../../config";
+import translateConfig from "../config/config";
 import { v4 as uuidv4 } from "uuid";
 
 export const fetchNavbarData = async () => {
